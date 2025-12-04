@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&family=Source+Code+Pro:wght@500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --secondary-color: #00b894;
+            --danger-color: #d63031;
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --code-bg: #2d3436;
+            --code-text: #dfe6e9;
+            --selected-border: #fdcb6e;
+        }
+
+        * { box-sizing: border-box; }
+        
+        body {
+            font-family: 'Prompt', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background: var(--card-bg);
+            padding: 1rem 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .logo { font-weight: 600; font-size: 1.4rem; color: var(--primary-color); }
+
+        .screen {
+            display: none;
+            flex: 1;
+            padding: 20px;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            animation: fadeEffect 0.5s;
+        }
+        .screen.active { display: flex; }
+
+        @keyframes fadeEffect { from {opacity: 0;} to {opacity: 1;} }
+
+        .card {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            margin: 20px 0;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: 'Prompt';
+            font-size: 1rem;
+        }
+        input[type="text"]:focus { border-color: var(--primary-color); outline: none; }
+
+        .btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Prompt';
+            box-shadow: 0 4px 10px rgba(74, 144, 226, 0.3);
+        }
+        .btn:active { transform: scale(0.98); }
+        .btn:disabled { background: #ccc; cursor: not-allowed; box-shadow: none; }
+
+        .quiz-container {
+            display: flex;
+            width: 100%;
+            max-width: 1100px;
+            gap: 20px;
+            position: relative;
+        }
+
+        .question-box {
+            flex: 2;
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .header-info {
+            display: flex;
+            justify-content: space-between;
+            color: #636e72;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        h2.q-title {
+            margin: 0 0 10px 0;
+            font-size: 1.3rem;
+            color: #2d3436;
+        }
+
+        .instruction {
+            font-size: 0.9rem;
+            color: #e67e22;
+            background: #fff3e0;
+            padding: 8px 12px;
+            border-radius: 6px;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .sortable-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sortable-list li {
+            background: var(--code-bg);
+            color: var(--code-text);
+            font-family: 'Source Code Pro', monospace;
+            padding: 16px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 3px solid transparent;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .sortable-list li:hover { transform: translateX(5px); }
+        
+        .sortable-list li.selected {
+            border-color: var(--selected-border);
+            box-shadow: 0 0 10px rgba(253, 203, 110, 0.5);
+            z-index: 10;
+        }
+
+        .sortable-list li.correct {
+            border-color: var(--secondary-color);
+            background: #252a2b;
+            color: #55efc4;
+        }
+
+        .sortable-list li.wrong {
+            border-color: var(--danger-color);
+            background: #2d2020;
+            animation: shake 0.4s;
+        }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            50% { transform: translateX(10px); }
+            75% { transform: translateX(-10px); }
+            100% { transform: translateX(0); }
+        }
+
+        .sidebar {
+            flex: 1;
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            height: fit-content;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            display: none;
+        }
+        .sidebar.active { display: block; }
+        
+        .hint-area {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background: #ffeaa7;
+            color: #d35400;
+            display: flex;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-weight: 500;
+        }
+        
+        .hint-visible { opacity: 1; }
+
+        .result-score {
+            font-size: 4rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 10px 0;
+        }
+
+        @media (min-width: 769px) {
+            .sidebar { display: block; }
+        }
+        
+        @media (max-width: 768px) {
+            .quiz-container { flex-direction: column; }
+            .sidebar { margin-top: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo"><i class="fa-brands fa-python"></i> Python Master</div>
+        <div id="user-ui" style="display:none; font-weight:600;">
+            <i class="fa-regular fa-user"></i> <span id="display-name">Guest</span>
+        </div>
+    </header>
+
+    <div id="screen-login" class="screen active">
+        <div class="card">
+            <h1 style="color:var(--primary-color);">ห้องเรียน Python</h1>
+            <p>ฝึกจัดเรียงลำดับโค้ด (ลากแล้ววาง)</p>
+            <i class="fa-solid fa-laptop-code" style="font-size: 3rem; color: var(--primary-color); margin: 20px;"></i>
+            <div style="margin-bottom: 20px;"></div>
+            <input type="text" id="username" placeholder="กรอกชื่อผู้เรียน..." autocomplete="off">
+            <button class="btn" onclick="startGame()">เริ่มทำแบบทดสอบ</button>
+        </div>
+    </div>
+
+    <div id="screen-quiz" class="screen">
+        <div class="quiz-container">
+            <div class="question-box">
+                <div class="header-info">
+                    <span><i class="fa-solid fa-bars-progress"></i> ข้อที่ <span id="q-current">1</span> / 20</span>
+                    <span><i class="fa-solid fa-trophy"></i> คะแนน: <span id="q-score">0</span></span>
+                </div>
+
+                <h2 id="q-text" class="q-title">Loading...</h2>
+                <div class="instruction">
+                    <i class="fa-regular fa-hand-pointer"></i> คลิก 2 ครั้งเพื่อสลับ หรือ ลากวาง
+                </div>
+
+                <ul id="sortable-list" class="sortable-list"></ul>
+
+                <div id="hint-box" class="hint-area">
+                    <i class="fa-solid fa-lightbulb" style="margin-right:10px;"></i>
+                    <span id="hint-text">...</span>
+                </div>
+
+                <div style="text-align: right; margin-top: 20px;">
+                    <button id="submit-btn" class="btn" onclick="checkAnswer()">ส่งคำตอบ <i class="fa-solid fa-paper-plane"></i></button>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <h3 style="color:var(--primary-color); border-bottom:2px solid #eee; padding-bottom:10px;">
+                    <i class="fa-solid fa-book"></i> เกร็ดความรู้
+                </h3>
+                <div id="lesson-content" style="line-height:1.6; color:#555;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="screen-result" class="screen">
+        <div class="card">
+            <h2>สรุปผลการเรียน</h2>
+            <p>ผู้เรียน: <span id="end-name" style="font-weight:600;"></span></p>
+            <div class="result-score" id="end-score">0%</div>
+            <p id="end-msg">คุณทำได้ยอดเยี่ยมมาก!</p>
+            <hr style="margin: 20px 0; border:0; border-top:1px solid #eee;">
+            <button class="btn" style="background:var(--secondary-color);" onclick="resetGame()">
+                <i class="fa-solid fa-rotate-right"></i> เริ่มต้นใหม่
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA ---
+        const fullDB = [
+            { 
+                id: 1, topic: "การประกาศตัวแปร", q: "ประกาศตัวแปร a=10 และ b=20 (สลับกันได้) แล้วหาผลบวก", 
+                code: ["a = 10", "b = 20", "print(a + b)"], valid_patterns: ["0-1-2", "1-0-2"], 
+                hint: "ประกาศ a และ b ก่อน แล้วค่อย print", lesson: "การประกาศตัวแปรที่แยกกัน สามารถทำบรรทัดไหนก่อนก็ได้" 
+            },
+            { 
+                id: 2, topic: "คำนวณหาอายุ (Flexible)", q: "เกิดปี 2000 ปีนี้ 2025 อายุเท่าไหร่", 
+                code: ["birth = 2000", "now = 2025", "age = now - birth"], valid_patterns: ["0-1-2", "1-0-2"], 
+                hint: "ต้องมีปีเกิดและปีปัจจุบัน ก่อนนำมาลบกัน", lesson: "ตัวแปร birth และ now เป็นอิสระต่อกัน ประกาศอันไหนก่อนก็ได้" 
+            },
+            { 
+                id: 3, topic: "พื้นที่สี่เหลี่ยม (Flexible)", q: "กว้าง 5 ยาว 10 หาพื้นที่", 
+                code: ["w = 5", "l = 10", "area = w * l"], valid_patterns: ["0-1-2", "1-0-2"], 
+                hint: "กำหนดกว้างและยาว ก่อนเข้าสูตร", lesson: "Area = Width x Length" 
+            },
+            { 
+                id: 4, topic: "ตัวแปร String", q: "กำหนดชื่อและนามสกุล แล้วแสดงผล", 
+                code: ["first = 'Somchai'", "last = 'Dee'", "print(first + last)"], valid_patterns: ["0-1-2", "1-0-2"],
+                hint: "ประกาศชื่อและนามสกุลให้ครบก่อน", lesson: "ตัวแปรที่เป็นอิสระต่อกัน สามารถสลับลำดับบรรทัดได้"
+            },
+            { id: 5, topic: "การคำนวณต่อเนื่อง", q: "x=10, เพิ่มค่า x อีก 5, แสดงผล", code: ["x = 10", "x = x + 5", "print(x)"], hint: "ต้องประกาศ x ก่อน ถึงจะบวกเพิ่มได้", lesson: "ลำดับสำคัญมาก: ประกาศ -> คำนวณ -> แสดงผล" },
+            { id: 6, topic: "รับค่าและแสดงผล", q: "รับชื่อจาก user แล้วแสดงคำทักทาย", code: ["name = input()", "print('Hi ' + name)"], hint: "ต้องรับค่าใส่ name ก่อน ถึงจะเอาไปใช้ได้", lesson: "Input ต้องมาก่อน Output เสมอ" },
+            { id: 7, topic: "การแปลง Type", q: "รับปีเกิด(ข้อความ) แปลงเป็นตัวเลข", code: ["y_str = input()", "year = int(y_str)", "print(year)"], hint: "ต้องรับค่าก่อน แล้วค่อยแปลง", lesson: "ต้องมีข้อมูล (String) ก่อนแปลงเป็น (int)" },
+            { id: 8, topic: "ภาษี 7%", q: "ราคา 100 ภาษี 7% รวมเป็นเงินเท่าไหร่", code: ["price = 100", "tax = price * 0.07", "total = price + tax"], hint: "ต้องรู้ price -> หา tax -> หา total", lesson: "ต้องคำนวณตามลำดับขั้น" },
+            { 
+                id: 9, topic: "เส้นรอบวง (Flexible)", q: "รัศมี r=7 หาเส้นรอบวง (2*pi*r)", 
+                code: ["r = 7", "pi = 3.14", "circum = 2 * pi * r"], valid_patterns: ["0-1-2", "1-0-2"], 
+                hint: "กำหนดตัวแปรให้ครบทุกตัวก่อนบรรทัดคำนวณ", lesson: "r และ pi เป็นตัวแปรตั้งต้น สลับกันได้" 
+            },
+            { id: 10, topic: "แปลงหน่วย CM -> M", q: "แปลง 150 cm เป็นเมตร", code: ["cm = 150", "m = cm / 100", "print(m)"], hint: "ต้องมีค่า cm ก่อน ถึงจะเอาไปหาร 100 ได้", lesson: "100 cm = 1 m" },
+            { id: 11, topic: "แปลงอุณหภูมิ", q: "แปลง C=30 เป็น F", code: ["c = 30", "f = (c * 1.8) + 32", "print(f)"], hint: "ต้องกำหนด c ก่อนนำไปเข้าสูตร", lesson: "F = 1.8C + 32" },
+            { 
+                id: 12, topic: "BMI (Flexible)", q: "หนัก 60 สูง 1.7 หา BMI", 
+                code: ["weight = 60", "height = 1.7", "bmi = weight / (height**2)"], valid_patterns: ["0-1-2", "1-0-2"],
+                hint: "ประกาศน้ำหนักและส่วนสูงก่อนคำนวณ", lesson: "BMI = weight / height^2" 
+            },
+            { id: 13, topic: "สลับค่า (Strict)", q: "สลับของในกล่อง A และ B", code: ["temp = a", "a = b", "b = temp"], hint: "1.เก็บ a ไว้ที่อื่น 2.เอา b ใส่ a 3.เอาของเก่า a ใส่ b", lesson: "Algorithm การสลับค่าต้องทำตามลำดับเป๊ะๆ" },
+            { id: 14, topic: "นับจำนวนวินาที", q: "2 นาที คิดเป็นกี่วินาที", code: ["min = 2", "sec = min * 60", "print(sec)"], hint: "ต้องรู้จำนวนนาทีก่อนคูณ 60", lesson: "1 min = 60 sec" },
+            { 
+                id: 15, topic: "ปริมาตรกล่อง (Flexible Inputs)", q: "พื้นที่ฐาน=20 สูง=10 หาปริมาตร", 
+                code: ["base_area = 20", "height = 10", "vol = base_area * height"], valid_patterns: ["0-1-2", "1-0-2"],
+                hint: "กำหนดพื้นที่ฐานและความสูงก่อนคูณกัน", lesson: "Volume = Base Area * Height" 
+            },
+            { id: 16, topic: "ยกกำลัง", q: "หาค่า x กำลัง 2 แล้วบวก 1", code: ["x = 5", "power = x ** 2", "result = power + 1"], hint: "1.กำหนด x, 2.ยกกำลัง, 3.บวกเลข", lesson: "Order of Operations" },
+            { 
+                id: 17, topic: "เงินทอน (Flexible)", q: "จ่าย 100 ซื้อของ 80", 
+                code: ["pay = 100", "cost = 80", "change = pay - cost"], valid_patterns: ["0-1-2", "1-0-2"],
+                hint: "กำหนดเงินที่จ่ายและราคาก่อนลบกัน", lesson: "Change = Pay - Cost" 
+            },
+            { id: 18, topic: "String Format", q: "สร้างประโยค 'I am 10 years old'", code: ["age = 10", "txt = 'I am ' + str(age)", "print(txt)"], hint: "ต้องมี age ก่อน แล้วแปลงเป็น str เพื่อเชื่อมข้อความ", lesson: "String Concatenation" },
+			{ id: 19, topic: "การเปรียบเทียบ (Boolean)", q: "ตรวจสอบว่า a มากกว่า b หรือไม่", code: ["a = 10", "b = 5", "print(a > b)"], valid_patterns: ["0-1-2", "1-0-2"], hint: "กำหนด a และ b ก่อนเปรียบเทียบ", lesson: "เครื่องหมาย > จะให้ผลลัพธ์เป็น True หรือ False"},
+            { id: 20, topic: "Update ตัวแปร", q: "คะแนนเริ่มต้น 0 ทำถูกได้เพิ่ม 1", code: ["score = 0", "score = score + 1", "print(score)"], hint: "ต้องมีคะแนนตั้งต้นก่อนบวกเพิ่ม", lesson: "Variable Updating" },
+            { id: 21, topic: "หาอายุแบบรับค่า", q: "รับปีเกิด(int) แล้วคำนวณอายุ (ปีนี้ 2025)", code: ["birth = int(input())", "age = 2025 - birth", "print(age)"], hint: "รับค่า -> คำนวณ -> แสดงผล", lesson: "User Input Calculation" },
+            { id: 22, topic: "หารเอาเศษ", q: "ลูกอม 10 เม็ด คน 3 คน เหลือเศษ?", code: ["candy = 10", "people = 3", "left = candy % people"], valid_patterns: ["0-1-2", "1-0-2"], hint: "กำหนดของและคน ก่อนหาเศษ", lesson: "% Modulo" },
+            { id: 23, topic: "แปลง String เป็น Float", q: "รับน้ำหนัก(ทศนิยม) มาคูณ 2", code: ["w_str = input()", "w = float(w_str)", "print(w * 2)"], hint: "รับค่า -> แปลงเป็นทศนิยม -> คำนวณ", lesson: "Use float() for decimal" },
+            { id: 24, topic: "Logic Gate", q: "a จริง, b เท็จ, แสดง a AND b", code: ["a = True", "b = False", "print(a and b)"], valid_patterns: ["0-1-2", "1-0-2"], hint: "ประกาศ Boolean ก่อน", lesson: "Boolean Logic" },
+            { id: 25, topic: "วงกลม (Diameter)", q: "D=10 หา รัศมี(r) และ พื้นที่", code: ["d = 10", "r = d / 2", "area = 3.14 * r * r"], hint: "รู้ D -> หา r -> หา Area (ทำตามลำดับ)", lesson: "Radius = Diameter / 2" },
+            { id: 26, topic: "Floor Division", q: "10 หาร 3 เอาจำนวนเต็ม", code: ["n = 10", "res = n // 3", "print(res)"], hint: "ใช้เครื่องหมาย //", lesson: "// is Floor Division" },
+            { id: 27, topic: "พิมพ์ซ้ำ", q: "พิมพ์ 'Go' 5 ครั้ง", code: ["word = 'Go'", "p = word * 5", "print(p)"], hint: "สร้างคำก่อน แล้วคูณจำนวนครั้ง", lesson: "String Multiplication" },
+            { id: 28, topic: "ระยะทาง (Flexible)", q: "ขับ 60 km/h เวลา 2 ชม. ได้ระยะทาง?", code: ["speed = 60", "time = 2", "dist = speed * time"], valid_patterns: ["0-1-2", "1-0-2"], hint: "ประกาศ speed และ time ก่อนคูณ", lesson: "Distance = Speed * Time" },
+            { id: 29, topic: "แปลงวันเป็นชม.", q: "3 วัน มีกี่ชั่วโมง", code: ["days = 3", "hours = days * 24", "print(hours)"], hint: "รู้วัน -> คูณ 24", lesson: "1 Day = 24 Hours" },
+            { id: 30, topic: "กำไร (Flexible)", q: "ขาย 120 ทุน 100 กำไรเท่าไหร่", code: ["sell = 120", "cost = 100", "profit = sell - cost"], valid_patterns: ["0-1-2", "1-0-2"], hint: "รู้ราคาขายและทุน ก่อนลบกัน", lesson: "Profit = Sell - Cost" }
+        ];
+
+        let questions = [];
+        let curIdx = 0;
+        let score = 0;
+        let userName = "";
+        let selectedItem = null;
+
+        function startGame() {
+            const nameInput = document.getElementById('username');
+            if(!nameInput.value.trim()) { alert("กรุณากรอกชื่อก่อนเริ่ม"); return; }
+            userName = nameInput.value;
+            document.getElementById('user-ui').style.display = 'block';
+            document.getElementById('display-name').innerText = userName;
+
+            let temp = [...fullDB];
+            temp.sort(() => Math.random() - 0.5);
+            questions = temp.slice(0, 20);
+
+            document.getElementById('screen-login').classList.remove('active');
+            document.getElementById('screen-quiz').classList.add('active');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            document.getElementById('submit-btn').disabled = false;
+            document.getElementById('hint-box').classList.remove('hint-visible');
+            selectedItem = null;
+
+            const q = questions[curIdx];
+            document.getElementById('q-current').innerText = curIdx + 1;
+            document.getElementById('q-score').innerText = score;
+            document.getElementById('q-text').innerText = q.q;
+            document.getElementById('hint-text').innerText = q.hint;
+            document.getElementById('lesson-content').innerHTML = `<strong style="color:var(--primary-color)">${q.topic}</strong><br>${q.lesson}`;
+
+            const list = document.getElementById('sortable-list');
+            list.innerHTML = "";
+            
+            // --- NEW: Force Scramble Logic ---
+            // 1. Prepare Items
+            let items = q.code.map((line, index) => ({ line, originalIndex: index }));
+            
+            // 2. Determine allowed patterns (Strict vs Flexible)
+            let allowedPatterns = q.valid_patterns || []; 
+            if (allowedPatterns.length === 0) {
+                // If no patterns defined, default to strict "0-1-2..."
+                allowedPatterns = [q.code.map((_, i) => i).join("-")];
+            }
+
+            // 3. Shuffle Loop: Keep shuffling until it is NOT a correct answer
+            let maxTries = 50;
+            do {
+                items.sort(() => Math.random() - 0.5);
+                
+                // Check current shuffled pattern
+                let currentPattern = items.map(i => i.originalIndex).join("-");
+                
+                // If currentPattern is NOT in allowedPatterns, it's good (it's scrambled)
+                if (!allowedPatterns.includes(currentPattern)) {
+                    break;
+                }
+                maxTries--;
+            } while (maxTries > 0);
+            // ---------------------------------
+
+            items.forEach(item => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span><i class="fa-solid fa-code" style="color:#b2bec3; margin-right:10px;"></i> ${item.line}</span><i class="fa-solid fa-arrows-up-down" style="color:#dfe6e9;"></i>`;
+                li.setAttribute('data-id', item.originalIndex);
+                li.setAttribute('draggable', 'true');
+                addInteractionEvents(li);
+                list.appendChild(li);
+            });
+        }
+
+        function checkAnswer() {
+            const btn = document.getElementById('submit-btn');
+            btn.disabled = true;
+
+            const listItems = document.querySelectorAll('#sortable-list li');
+            
+            let userPattern = [];
+            listItems.forEach(li => {
+                userPattern.push(li.getAttribute('data-id'));
+            });
+            const userPatternStr = userPattern.join("-");
+
+            const q = questions[curIdx];
+            let allowedPatterns = q.valid_patterns || []; 
+            
+            if (allowedPatterns.length === 0) {
+                let defaultPat = [];
+                for(let i=0; i<q.code.length; i++) defaultPat.push(i);
+                allowedPatterns.push(defaultPat.join("-"));
+            }
+
+            let isCorrect = allowedPatterns.includes(userPatternStr);
+
+            if(isCorrect) {
+                score++;
+                document.getElementById('q-score').innerText = score;
+                listItems.forEach(li => li.classList.add('correct'));
+                setTimeout(nextQuestion, 1200);
+            } else {
+                listItems.forEach(li => li.classList.add('wrong'));
+                document.getElementById('hint-box').classList.add('hint-visible');
+                setTimeout(nextQuestion, 3500); 
+            }
+        }
+
+        // --- Interaction Logic ---
+        function addInteractionEvents(li) {
+            li.addEventListener('click', function() {
+                if(document.getElementById('submit-btn').disabled) return;
+                if(!selectedItem) {
+                    selectedItem = this; this.classList.add('selected');
+                } else if (selectedItem === this) {
+                    selectedItem = null; this.classList.remove('selected');
+                } else {
+                    swapNodes(selectedItem, this);
+                    selectedItem.classList.remove('selected'); selectedItem = null;
+                }
+            });
+            li.addEventListener('dragstart', function() { if(!document.getElementById('submit-btn').disabled) this.classList.add('dragging'); });
+            li.addEventListener('dragend', function() { this.classList.remove('dragging'); });
+        }
+        const listContainer = document.getElementById('sortable-list');
+        listContainer.addEventListener('dragover', e => {
+            e.preventDefault();
+            const draggingItem = document.querySelector('.dragging');
+            if(!draggingItem) return;
+            const siblings = [...listContainer.querySelectorAll('li:not(.dragging)')];
+            let nextSibling = siblings.find(sibling => e.clientY <= sibling.getBoundingClientRect().top + sibling.offsetHeight / 2);
+            listContainer.insertBefore(draggingItem, nextSibling);
+        });
+        function swapNodes(node1, node2) {
+            const temp = document.createElement("div");
+            node1.before(temp); node2.before(node1); temp.before(node2); temp.remove();
+        }
+
+        function nextQuestion() {
+            curIdx++;
+            if(curIdx < questions.length) loadQuestion();
+            else showSummary();
+        }
+        function showSummary() {
+            document.getElementById('screen-quiz').classList.remove('active');
+            document.getElementById('screen-result').classList.add('active');
+            document.getElementById('end-name').innerText = userName;
+            const percent = Math.round((score / 20) * 100);
+            document.getElementById('end-score').innerText = percent + '%';
+            if(percent >= 80) document.getElementById('end-msg').innerText = "สุดยอด!";
+            else document.getElementById('end-msg').innerText = "ทำได้ดี!";
+        }
+        function resetGame() {
+            score = 0; curIdx = 0; userName = "";
+            document.getElementById('username').value = "";
+            document.getElementById('screen-result').classList.remove('active');
+            document.getElementById('screen-login').classList.add('active');
+        }
+    </script>
+</body>
+</html>
