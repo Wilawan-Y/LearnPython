@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Exam: Part1</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&family=Source+Code+Pro:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            /* --- New Ocean Theme Palette --- */
+            --primary-color: #0277bd;      /* Deep Ocean Blue (Header/Buttons) */
+            --secondary-color: #00c853;    /* Bright Green (Success) */
+            --danger-color: #d32f2f;       /* Red (Error) */
+            --bg-color: #e0f7fa;           /* Very Light Cyan (Page Background) */
+            --card-bg: #ffffff;            /* White (Card Background) */
+            
+            /* --- The Requested Changes --- */
+            --code-bg: #b2ebf2;            /* Sea Blue (Code Box Background) */
+            --code-text: #006064;          /* Dark Teal (Code Text - High Contrast) */
+            
+            --selected-border: #ff6f00;    /* Amber (Selection Highlight) */
+            --hover-bg: #80deea;           /* Slightly darker cyan for hover */
+        }
+
+        * { box-sizing: border-box; }
+        
+        body {
+            font-family: 'Prompt', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: #37474f; /* Dark Grey for general text */
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background: var(--primary-color);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .logo { font-weight: 600; font-size: 1.4rem; color: #ffeb3b; text-shadow: 1px 1px 2px rgba(0,0,0,0.2); }
+
+        .screen {
+            display: none;
+            flex: 1;
+            padding: 20px;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            animation: fadeEffect 0.5s;
+        }
+        .screen.active { display: flex; }
+
+        @keyframes fadeEffect { from {opacity: 0;} to {opacity: 1;} }
+
+        .card {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 20px; /* Rounder corners for kids */
+            box-shadow: 0 10px 25px rgba(2, 119, 189, 0.15); /* Blueish shadow */
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+            border: 4px solid #ffffff;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            margin: 20px 0;
+            border: 2px solid #b0bec5;
+            border-radius: 12px;
+            font-family: 'Prompt';
+            font-size: 1.1rem;
+            background: #f1f8e9;
+            color: #006064;
+        }
+        input[type="text"]:focus { border-color: var(--primary-color); outline: none; background: #fff; }
+
+        .btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 35px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Prompt';
+            box-shadow: 0 4px 0 #01579b; /* 3D Button effect */
+        }
+        .btn:active { transform: translateY(4px); box-shadow: none; }
+        .btn:disabled { background: #cfd8dc; color: #90a4ae; cursor: not-allowed; box-shadow: none; }
+
+        .quiz-container {
+            display: flex;
+            width: 100%;
+            max-width: 1100px;
+            gap: 20px;
+            position: relative;
+        }
+
+        .question-box {
+            flex: 2;
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border: 2px solid #e1f5fe;
+        }
+
+        .header-info {
+            display: flex;
+            justify-content: space-between;
+            color: #546e7a;
+            margin-bottom: 15px;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        h2.q-title {
+            margin: 0 0 15px 0;
+            font-size: 1.4rem;
+            color: var(--primary-color);
+        }
+
+        .instruction {
+            font-size: 0.95rem;
+            color: #e65100;
+            background: #ffe0b2;
+            padding: 10px 15px;
+            border-radius: 10px;
+            display: inline-block;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .sortable-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sortable-list li {
+            /* --- The Sea Blue Box --- */
+            background: var(--code-bg);
+            color: var(--code-text);
+            
+            font-family: 'Source Code Pro', monospace;
+            font-weight: 600; /* Bold text for better readability */
+            font-size: 1.1rem;
+            
+            padding: 18px;
+            margin-bottom: 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 3px solid transparent; /* Prepare for border */
+            transition: all 0.2s ease;
+            user-select: none;
+            box-shadow: 0 2px 5px rgba(0,96,100, 0.1);
+        }
+
+        .sortable-list li:hover { 
+            transform: translateX(5px); 
+            background: var(--hover-bg);
+        }
+        
+        .sortable-list li.selected {
+            border-color: var(--selected-border);
+            background: #fff9c4; /* Light Yellow when selected */
+            color: #e65100;
+            box-shadow: 0 0 10px rgba(255, 111, 0, 0.3);
+            z-index: 10;
+        }
+
+        .sortable-list li.correct {
+            border-color: var(--secondary-color);
+            background: #c8e6c9; /* Light Green */
+            color: #1b5e20;
+        }
+
+        .sortable-list li.wrong {
+            border-color: var(--danger-color);
+            background: #ffcdd2; /* Light Red */
+            color: #b71c1c;
+            animation: shake 0.4s;
+        }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            50% { transform: translateX(10px); }
+            75% { transform: translateX(-10px); }
+            100% { transform: translateX(0); }
+        }
+
+        .sidebar {
+            flex: 1;
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            height: fit-content;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            display: none;
+            border: 2px solid #e1f5fe;
+        }
+        .sidebar.active { display: block; }
+        
+        .hint-area {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 12px;
+            background: #fff3e0;
+            color: #ef6c00;
+            display: flex;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-weight: 600;
+            border: 2px dashed #ffb74d;
+        }
+        
+        .hint-visible { opacity: 1; }
+
+        .result-score {
+            font-size: 5rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            margin: 10px 0;
+            text-shadow: 2px 2px 0px #b2ebf2;
+        }
+
+        @media (min-width: 769px) {
+            .sidebar { display: block; }
+        }
+        
+        @media (max-width: 768px) {
+            .quiz-container { flex-direction: column; }
+            .sidebar { margin-top: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo"><i class="fa-solid fa-file-signature"></i> Final Exam</div>
+        <div id="user-ui" style="display:none; font-weight:600;">
+            <i class="fa-regular fa-id-card"></i> <span id="display-name">Student</span>
+        </div>
+    </header>
+
+    <div id="screen-login" class="screen active">
+        <div class="card">
+            <h1 style="color:var(--primary-color);">Python Exam : Part1</h1>
+            <p>ทบทวนเพื่อวัดผลการเรียนรู้</p>
+            <p style="font-size:0.9rem; color:#78909c;">(มีแบบทดสอบทั้งหมด 20 ข้อ)</p>
+            <i class="fa-solid fa-gamepad" style="font-size: 4rem; color: #4dd0e1; margin: 20px;"></i>
+            <div style="margin-bottom: 20px;"></div>
+            <input type="text" id="username" placeholder="ชื่อ-นามสกุล" autocomplete="off">
+            <button class="btn" onclick="startGame()">เริ่มทำข้อสอบ <i class="fa-solid fa-rocket"></i></button>
+        </div>
+    </div>
+
+    <div id="screen-quiz" class="screen">
+        <div class="quiz-container">
+            <div class="question-box">
+                <div class="header-info">
+                    <span><i class="fa-solid fa-flag"></i> ข้อที่ <span id="q-current">1</span> / 20</span>
+                    <span><i class="fa-solid fa-gem"></i> คะแนน: <span id="q-score">0</span></span>
+                </div>
+
+                <h2 id="q-text" class="q-title">Loading...</h2>
+                <div class="instruction">
+                    <i class="fa-solid fa-arrow-pointer"></i> คลิกที่กล่องเพื่อสลับตำแหน่ง
+                </div>
+
+                <ul id="sortable-list" class="sortable-list"></ul>
+
+                <div id="hint-box" class="hint-area">
+                    <i class="fa-solid fa-life-ring" style="margin-right:10px; font-size:1.5rem;"></i>
+                    <span id="hint-text">...</span>
+                </div>
+
+                <div style="text-align: right; margin-top: 20px;">
+                    <button id="submit-btn" class="btn" onclick="checkAnswer()">ตอบเลย! <i class="fa-solid fa-paper-plane"></i></button>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <h3 style="color:var(--primary-color); border-bottom:2px solid #b2ebf2; padding-bottom:10px;">
+                    <i class="fa-solid fa-book-open-reader"></i> เกร็ดความรู้
+                </h3>
+                <div id="lesson-content" style="line-height:1.6; color:#455a64; font-size:1rem;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="screen-result" class="screen">
+        <div class="card">
+            <h2>ผลการทดสอบ</h2>
+            <p>น้อง: <span id="end-name" style="font-weight:600; color:#0277bd;"></span></p>
+            <div class="result-score" id="end-score">0%</div>
+            <p id="end-msg">เก่งมากครับ!</p>
+            <hr style="margin: 20px 0; border:0; border-top:1px solid #eceff1;">
+            <button class="btn" style="background:#ffb300; color:#3e2723;" onclick="resetGame()">
+                <i class="fa-solid fa-rotate-right"></i> เล่นใหม่อีกครั้ง
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- EXAM SET 2 (Same Logic, Just Theme Change) ---
+        const fullDB = [
+            { id: 1, topic: "การประกาศตัวแปรหลายตัว", q: "กำหนดค่า x=5, y=10, z=15 (ลำดับใดก็ได้) แล้วหาผลรวม", code: ["x = 5", "y = 10", "z = 15", "print(x+y+z)"], valid_patterns: ["0-1-2-3", "0-2-1-3", "1-0-2-3", "1-2-0-3", "2-0-1-3", "2-1-0-3"], hint: "ประกาศตัวแปรให้ครบทั้ง 3 ตัวก่อนสั่ง print", lesson: "ตัวแปรอิสระสามารถประกาศก่อนหลังได้ตามสะดวก" },
+            { id: 2, topic: "อัปเดตค่าตัวแปร", q: "เริ่มต้น score=0, เพิ่ม 10 คะแนน, แล้วลบออก 2", code: ["score = 0", "score = score + 10", "score = score - 2", "print(score)"], hint: "ทำตามลำดับเวลา: ตั้งค่า -> บวก -> ลบ", lesson: "คอมพิวเตอร์ทำงานตามลำดับคำสั่งจากบนลงล่าง" },
+            { id: 3, topic: "รวมข้อความ (String)", q: "รวมชื่อ, นามสกุล และชื่อเล่น", code: ["first = 'Somchai'", "last = 'Jai-dee'", "nick = 'Kai'", "full = first + last + nick"], valid_patterns: ["0-1-2-3", "0-2-1-3", "1-0-2-3", "1-2-0-3", "2-0-1-3", "2-1-0-3"], hint: "ประกาศตัวแปรข้อความให้ครบ ก่อนนำมารวมกัน", lesson: "ต้องมีข้อมูลให้ครบก่อนทำการประมวลผล" },
+            { id: 4, topic: "การเพิ่มค่า (Operators)", q: "ใช้ += ในการเพิ่มค่า", code: ["hp = 100", "hp += 20", "print(hp)"], hint: "ประกาศค่าเริ่มต้นก่อนใช้ +=", lesson: "hp += 20 มีค่าเท่ากับ hp = hp + 20" },
+            { id: 5, topic: "ลำดับการคำนวณ", q: "หาค่า (10 + 2) คูณ 5", code: ["a = 10", "b = 2", "res = (a + b) * 5"], hint: "ต้องบวกในวงเล็บก่อนคูณ", lesson: "ทำในวงเล็บก่อนเสมอ" },
+            { id: 6, topic: "พื้นที่สี่เหลี่ยมคางหมู", q: "ผลบวกด้านคู่ขนาน=10, สูง=4, หาพื้นที่ (0.5 * ผลบวก * สูง)", code: ["sum_side = 10", "h = 4", "area = 0.5 * sum_side * h"], hint: "กำหนดตัวแปรให้ครบก่อนเข้าสูตร", lesson: "Area = 0.5 * (a+b) * h" },
+            { id: 7, topic: "แปลงข้อความเป็นตัวเลข", q: "รับปีเกิด(str) -> แปลงเป็น int -> คำนวณอายุ", code: ["y_str = input()", "y_int = int(y_str)", "age = 2024 - y_int"], hint: "รับค่า -> แปลงชนิด -> คำนวณ", lesson: "ต้องแปลงเป็นตัวเลขก่อนนำไปลบ" },
+            { id: 8, topic: "หารเอาเศษ (Modulo)", q: "เลข 15 หาร 2 เหลือเศษเท่าไหร่", code: ["num = 15", "rem = num % 2", "print(rem)"], hint: "ใช้ % 2 เพื่อหาเศษ", lesson: "ถ้าเศษเป็น 0 คือคู่, เป็น 1 คือคี่" },
+            { id: 9, topic: "เลขยกกำลัง", q: "คำนวณ 2 ยกกำลัง 3 แล้วบวก 1", code: ["base = 2", "power = base ** 3", "ans = power + 1"], hint: "ยกกำลังก่อนบวก", lesson: "** คือเครื่องหมายยกกำลัง" },
+            { id: 10, topic: "หาค่าเฉลี่ย", q: "มีเลข 10, 20, 30 หาค่าเฉลี่ย", code: ["total = 10 + 20 + 30", "avg = total / 3", "print(avg)"], hint: "หาผลรวมทั้งหมดก่อน แล้วหารด้วยจำนวน", lesson: "Average = ผลรวม / จำนวน" },
+            { id: 11, topic: "เปรียบเทียบค่า", q: "เช็คว่า A มากกว่า B หรือไม่ (A=50, B=100)", code: ["a = 50", "b = 100", "check = a > b"], valid_patterns: ["0-1-2", "1-0-2"], hint: "ประกาศตัวแปรก่อนเปรียบเทียบ", lesson: "เครื่องหมาย > จะให้ผลเป็น จริง หรือ เท็จ" },
+            { id: 12, topic: "ตรรกะศาสตร์ (AND)", q: "คะแนน > 50 และ ส่งงานครบ (True)", code: ["score_pass = True", "work_done = True", "pass_exam = score_pass and work_done"], valid_patterns: ["0-1-2", "1-0-2"], hint: "ต้องจริงทั้งคู่ถึงจะผ่าน", lesson: "AND ต้องเป็นจริงทั้งสองฝั่ง" },
+            { id: 13, topic: "ตรรกะศาสตร์ (NOT)", q: "สถานะ is_open = False อยากรู้ว่าปิดอยู่ไหม", code: ["is_open = False", "is_closed = not is_open", "print(is_closed)"], hint: "ใช้ not เพื่อกลับค่าความจริง", lesson: "NOT เปลี่ยน True เป็น False" },
+            { id: 14, topic: "ตรวจสอบความเท่ากัน", q: "รหัสผ่านที่รับมา ตรงกับ '1234' ไหม", code: ["saved_pw = '1234'", "input_pw = input()", "is_match = saved_pw == input_pw"], valid_patterns: ["0-1-2", "1-0-2"], hint: "ใช้เครื่องหมาย == เปรียบเทียบ", lesson: "= คือฝากค่า, == คือเปรียบเทียบ" },
+            { id: 15, topic: "คำนวณระยะทาง", q: "ความเร็ว 80 กม./ชม. เวลา 3 ชม.", code: ["v = 80", "t = 3", "s = v * t"], valid_patterns: ["0-1-2", "1-0-2"], hint: "ระยะทาง = ความเร็ว x เวลา", lesson: "s = vt" },
+            { id: 16, topic: "แปลงหน่วยความจุ", q: "2048 MB เท่ากับกี่ GB (หาร 1024)", code: ["mb = 2048", "gb = mb / 1024", "print(gb)"], hint: "1 GB = 1024 MB", lesson: "แปลงหน่วยเล็กเป็นใหญ่ให้หาร" },
+            { id: 17, topic: "คำนวณกำไร", q: "ขาย 500, ต้นทุน 300, กำไร?", code: ["sell = 500", "cost = 300", "profit = sell - cost"], valid_patterns: ["0-1-2", "1-0-2"], hint: "ราคาขาย ลบ ต้นทุน", lesson: "Profit = ราคาขาย - ต้นทุน" },
+            { id: 18, topic: "คำนวณส่วนลด %", q: "ราคา 1000 ลด 20%", code: ["price = 1000", "disc_amount = price * 0.20", "net = price - disc_amount"], hint: "หายอดลดก่อน แล้วนำไปลบออกจากราคาเต็ม", lesson: "ราคาสุทธิ = ราคาเต็ม - ส่วนลด" },
+            { id: 19, topic: "ปริมาตรทรงกระบอก", q: "พื้นที่ฐาน 50, สูง 10", code: ["base_area = 50", "h = 10", "vol = base_area * h"], valid_patterns: ["0-1-2", "1-0-2"], hint: "พื้นที่ฐาน x สูง", lesson: "ปริมาตร = พื้นที่ฐาน x สูง" },
+            { id: 20, topic: "ดอกเบี้ยอย่างง่าย", q: "เงินต้น 1000 ดอกเบี้ย 3% (คูณ 0.03)", code: ["principle = 1000", "rate = 0.03", "interest = principle * rate"], valid_patterns: ["0-1-2", "1-0-2"], hint: "เงินต้น x อัตราดอกเบี้ย", lesson: "Interest Calculation" },
+            { id: 21, topic: "ความยาวข้อความ", q: "หาความยาวของคำว่า 'Python'", code: ["word = 'Python'", "length = len(word)", "print(length)"], hint: "ใช้ฟังก์ชัน len()", lesson: "len() ใช้นับจำนวนตัวอักษร" },
+            { id: 22, topic: "ทำซ้ำข้อความ", q: "พิมพ์ 'Ha' 555 ครั้ง", code: ["txt = 'Ha'", "msg = txt * 555", "print(msg)"], hint: "String คูณ ตัวเลข", lesson: "การคูณข้อความคือการทำซ้ำ" },
+            { id: 23, topic: "Input เป็นทศนิยม", q: "รับค่าน้ำหนัก (ทศนิยม) แล้วคูณ 2", code: ["w_str = input()", "w = float(w_str)", "print(w * 2)"], hint: "ใช้ float() สำหรับทศนิยม", lesson: "float() ใช้แปลงเป็นเลขทศนิยม" },
+            { id: 24, topic: "รวมข้อความกับตัวเลข", q: "แสดงผล 'Age: ' ตามด้วยตัวแปร age", code: ["age = 18", "label = 'Age: '", "print(label + str(age))"], hint: "ต้องแปลง age เป็นข้อความ (str) ก่อน", lesson: "ข้อความบวกได้แค่กับข้อความเท่านั้น" },
+            { id: 25, topic: "สลับค่า (Swap)", q: "สลับค่า a, b แบบบรรทัดเดียว", code: ["a = 1", "b = 2", "a, b = b, a"], hint: "Python สลับค่าได้ด้วย a,b = b,a", lesson: "Python Swap Trick" },
+            { id: 26, topic: "คำนวณ BMI", q: "หนัก 70 สูง 1.75 (m)", code: ["kg = 70", "m = 1.75", "bmi = kg / (m * m)"], valid_patterns: ["0-1-2", "1-0-2"], hint: "ส่วนสูงคูณกันเองก่อนนำไปหารน้ำหนัก", lesson: "BMI = น้ำหนัก / ส่วนสูงกำลังสอง" },
+            { id: 27, topic: "แปลงอุณหภูมิ F->C", q: "F=100 แปลงเป็น C (สูตร (F-32)/1.8)", code: ["f = 100", "c = (f - 32) / 1.8", "print(c)"], hint: "ลบ 32 ก่อน แล้วค่อยหาร", lesson: "Reverse Formula" },
+            { id: 28, topic: "พื้นที่วงกลม (ใช้ d)", q: "เส้นผ่านศูนย์กลาง 20 หาพื้นที่", code: ["d = 20", "r = d / 2", "area = 3.14 * r * r"], hint: "หา r จาก d ก่อนเข้าสูตร", lesson: "ต้องหารัศมี (r) ก่อนคำนวณพื้นที่" },
+            { id: 29, topic: "Logic: คุณสมบัติผ่านเกณฑ์", q: "อายุ >= 18 และ มีบัตร", code: ["age = 20", "has_card = True", "pass = age >= 18 and has_card"], hint: "เปรียบเทียบอายุก่อน แล้วเช็คกับบัตร", lesson: "เงื่อนไขซับซ้อน" },
+            { id: 30, topic: "วินาทีเป็นนาที", q: "120 วินาที เป็นกี่นาที (จำนวนเต็ม)", code: ["sec = 120", "min = sec // 60", "print(min)"], hint: "ใช้ // เพื่อหารแบบไม่เอาเศษ", lesson: "// คือการหารตัดเศษทิ้ง" }
+        ];
+
+        let questions = [];
+        let curIdx = 0;
+        let score = 0;
+        let userName = "";
+        let selectedItem = null;
+
+        function startGame() {
+            const nameInput = document.getElementById('username');
+            if(!nameInput.value.trim()) { alert("อย่าลืมพิมพ์ชื่อก่อนนะครับ!"); return; }
+            userName = nameInput.value;
+            document.getElementById('user-ui').style.display = 'block';
+            document.getElementById('display-name').innerText = userName;
+
+            let temp = [...fullDB];
+            temp.sort(() => Math.random() - 0.5);
+            questions = temp.slice(0, 20);
+
+            document.getElementById('screen-login').classList.remove('active');
+            document.getElementById('screen-quiz').classList.add('active');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            document.getElementById('submit-btn').disabled = false;
+            document.getElementById('hint-box').classList.remove('hint-visible');
+            selectedItem = null;
+
+            const q = questions[curIdx];
+            document.getElementById('q-current').innerText = curIdx + 1;
+            document.getElementById('q-score').innerText = score;
+            document.getElementById('q-text').innerText = q.q;
+            document.getElementById('hint-text').innerText = q.hint;
+            document.getElementById('lesson-content').innerHTML = `<strong style="color:var(--primary-color)">${q.topic}</strong><br>${q.lesson}`;
+
+            const list = document.getElementById('sortable-list');
+            list.innerHTML = "";
+            
+            // --- Force Scramble Logic ---
+            let items = q.code.map((line, index) => ({ line, originalIndex: index }));
+            
+            let allowedPatterns = q.valid_patterns || []; 
+            if (allowedPatterns.length === 0) {
+                allowedPatterns = [q.code.map((_, i) => i).join("-")];
+            }
+
+            let maxTries = 50;
+            do {
+                items.sort(() => Math.random() - 0.5);
+                let currentPattern = items.map(i => i.originalIndex).join("-");
+                if (!allowedPatterns.includes(currentPattern)) {
+                    break;
+                }
+                maxTries--;
+            } while (maxTries > 0);
+            // ---------------------------------
+
+            items.forEach(item => {
+                const li = document.createElement('li');
+                // Updated Icon Color to dark teal for contrast
+                li.innerHTML = `<span><i class="fa-solid fa-code" style="color:#00838f; margin-right:10px;"></i> ${item.line}</span><i class="fa-solid fa-arrows-up-down" style="color:#00838f; opacity:0.5;"></i>`;
+                li.setAttribute('data-id', item.originalIndex);
+                li.setAttribute('draggable', 'true');
+                addInteractionEvents(li);
+                list.appendChild(li);
+            });
+        }
+
+        function checkAnswer() {
+            const btn = document.getElementById('submit-btn');
+            btn.disabled = true;
+
+            const listItems = document.querySelectorAll('#sortable-list li');
+            
+            let userPattern = [];
+            listItems.forEach(li => {
+                userPattern.push(li.getAttribute('data-id'));
+            });
+            const userPatternStr = userPattern.join("-");
+
+            const q = questions[curIdx];
+            let allowedPatterns = q.valid_patterns || []; 
+            
+            if (allowedPatterns.length === 0) {
+                let defaultPat = [];
+                for(let i=0; i<q.code.length; i++) defaultPat.push(i);
+                allowedPatterns.push(defaultPat.join("-"));
+            }
+
+            let isCorrect = allowedPatterns.includes(userPatternStr);
+
+            if(isCorrect) {
+                score++;
+                document.getElementById('q-score').innerText = score;
+                listItems.forEach(li => li.classList.add('correct'));
+                setTimeout(nextQuestion, 1000);
+            } else {
+                listItems.forEach(li => li.classList.add('wrong'));
+                document.getElementById('hint-box').classList.add('hint-visible');
+                setTimeout(nextQuestion, 3000); 
+            }
+        }
+
+        function addInteractionEvents(li) {
+            li.addEventListener('click', function() {
+                if(document.getElementById('submit-btn').disabled) return;
+                if(!selectedItem) {
+                    selectedItem = this; this.classList.add('selected');
+                } else if (selectedItem === this) {
+                    selectedItem = null; this.classList.remove('selected');
+                } else {
+                    swapNodes(selectedItem, this);
+                    selectedItem.classList.remove('selected'); selectedItem = null;
+                }
+            });
+            li.addEventListener('dragstart', function() { if(!document.getElementById('submit-btn').disabled) this.classList.add('dragging'); });
+            li.addEventListener('dragend', function() { this.classList.remove('dragging'); });
+        }
+        const listContainer = document.getElementById('sortable-list');
+        listContainer.addEventListener('dragover', e => {
+            e.preventDefault();
+            const draggingItem = document.querySelector('.dragging');
+            if(!draggingItem) return;
+            const siblings = [...listContainer.querySelectorAll('li:not(.dragging)')];
+            let nextSibling = siblings.find(sibling => e.clientY <= sibling.getBoundingClientRect().top + sibling.offsetHeight / 2);
+            listContainer.insertBefore(draggingItem, nextSibling);
+        });
+        function swapNodes(node1, node2) {
+            const temp = document.createElement("div");
+            node1.before(temp); node2.before(node1); temp.before(node2); temp.remove();
+        }
+
+        function nextQuestion() {
+            curIdx++;
+            if(curIdx < questions.length) loadQuestion();
+            else showSummary();
+        }
+        function showSummary() {
+            document.getElementById('screen-quiz').classList.remove('active');
+            document.getElementById('screen-result').classList.add('active');
+            document.getElementById('end-name').innerText = userName;
+            const percent = Math.round((score / 20) * 100);
+            document.getElementById('end-score').innerText = percent + '%';
+            
+            let msg = "";
+            if(percent >= 80) msg = "สุดยอดไปเลย! เก่งมากครับ";
+            else if(percent >= 50) msg = "ผ่านเกณฑ์แล้ว ทำได้ดีครับ";
+            else msg = "พยายามอีกนิดนะครับ สู้ๆ!";
+            document.getElementById('end-msg').innerText = msg;
+        }
+        function resetGame() {
+            score = 0; curIdx = 0; userName = "";
+            document.getElementById('username').value = "";
+            document.getElementById('screen-result').classList.remove('active');
+            document.getElementById('screen-login').classList.add('active');
+        }
+    </script>
+</body>
+</html>

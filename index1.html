@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python พื้นฐาน </title>
+    <style>
+        /* CSS คงเดิม เพื่อความสวยงาม */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Sarabun', 'Segoe UI', Tahoma, sans-serif; 
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); 
+            min-height: 100vh; 
+            padding: 20px; 
+            color: #444;
+        }
+        .container { max-width: 1200px; margin: 0 auto; background: rgba(255,255,255,0.95); border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); min-height: 85vh; display: flex; flex-direction: column; }
+        
+        #welcomeScreen { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .title { color: #2c3e50; font-size: 2.5em; margin-bottom: 10px; font-weight: bold; }
+        .input-box { padding: 15px; width: 300px; border: 2px solid #ddd; border-radius: 50px; font-size: 1.1em; text-align: center; margin-bottom: 20px; outline: none; transition: 0.3s; }
+        .input-box:focus { border-color: #2c3e50; }
+        .btn { padding: 12px 40px; border-radius: 50px; border: none; cursor: pointer; font-size: 1.2em; font-weight: bold; color: white; background: #2c3e50; transition: 0.3s; }
+        .btn:hover { transform: scale(1.05); background: #34495e; }
+        .btn:disabled { background: #bdc3c7; cursor: not-allowed; transform: none; }
+        .btn-outline { background: white; border: 2px solid #2c3e50; color: #2c3e50; margin-left: 10px; font-size: 0.9em; padding: 8px 20px; }
+
+        #mainContent { display: none; height: 100%; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #eee; }
+        .layout-grid { display: grid; grid-template-columns: 1fr 380px; gap: 30px; align-items: start; }
+        .layout-grid.hide-sidebar { grid-template-columns: 1fr; }
+
+        .question-box { background: #fff; padding: 30px; border-radius: 15px; border: 1px solid #eee; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .q-text { font-size: 1.4em; font-weight: 600; margin-bottom: 25px; color: #2c3e50; }
+        .code-block-q { background: #f8f9fa; color: #c7254e; padding: 15px; border-radius: 8px; font-family: 'Courier New', monospace; margin: 15px 0; border-left: 5px solid #2c3e50; font-size: 1.1em; font-weight: bold; }
+
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .option { padding: 15px 20px; border: 2px solid #e2e8f0; border-radius: 12px; cursor: pointer; transition: 0.2s; font-size: 1.1em; background: #fff; }
+        .option:hover:not(.disabled) { border-color: #3498db; background: #ebf5fb; }
+        
+        .option.selected { border-color: #3498db; background: #ebf5fb; }
+        .option.correct { border-color: #27ae60; background: #eafaf1; color: #27ae60; font-weight: bold; }
+        .option.incorrect { border-color: #e74c3c; background: #fdedec; color: #e74c3c; font-weight: bold; }
+        .option.disabled { pointer-events: none; opacity: 0.6; }
+
+        .feedback-box { margin-top: 25px; padding: 20px; border-radius: 10px; display: none; }
+        .feedback-correct { background: #eafaf1; border-left: 5px solid #27ae60; }
+        .feedback-incorrect { background: #fdedec; border-left: 5px solid #e74c3c; }
+
+        .sidebar { background: #fdfdfd; padding: 25px; border-radius: 15px; border: 1px solid #eee; max-height: 700px; overflow-y: auto; }
+        .sidebar h3 { color: #2c3e50; margin-bottom: 15px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .topic-title { font-weight: bold; color: #2980b9; margin-top: 15px; display: block; }
+        .topic-content { font-size: 0.95em; line-height: 1.6; color: #555; }
+        code { background: #f4f4f4; padding: 2px 5px; border-radius: 4px; font-family: monospace; color: #c0392b; }
+
+        #resultScreen { display: none; text-align: center; padding-top: 40px; }
+        .score-display { font-size: 5em; font-weight: bold; color: #2c3e50; margin-bottom: 20px; }
+
+        @media (max-width: 900px) {
+            .layout-grid { grid-template-columns: 1fr; }
+            .sidebar { display: none; }
+            .sidebar.mobile-show { display: block; margin-top: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="welcomeScreen">
+            <h1>🐍 Python (ทบทวน)</h1>
+            <p style="margin-bottom: 30px; color: #7f8c8d;">แบบทดสอบ 20 ข้อ </p>
+            <input type="text" id="username" class="input-box" placeholder="พิมพ์ชื่อนักเรียน...">
+            <button class="btn" onclick="startApp()">เข้าสู่แบบทดสอบ</button>
+        </div>
+
+        <div id="mainContent">
+            <div class="top-bar">
+                <div>👤 <span id="displayUser"></span></div>
+                <div>
+                    <span id="progressText" style="margin-right: 15px; font-weight: bold;">ข้อที่ 1/20</span>
+                    <button class="btn btn-outline" onclick="toggleSidebar()">📖 เนื้อหาที่เรียน</button>
+                </div>
+            </div>
+
+            <div class="layout-grid" id="layoutGrid">
+                <div class="quiz-area">
+                    <div class="question-box">
+                        <div class="q-text" id="questionText">...</div>
+                        <div id="codeContainer"></div>
+                        
+                        <div class="options-grid" id="optionsContainer"></div>
+
+                        <div id="feedbackArea" class="feedback-box">
+                            <h3 id="feedbackTitle"></h3>
+                            <p id="feedbackContent"></p>
+                        </div>
+
+                        <div style="margin-top: 30px; text-align: right;">
+                            <button id="checkBtn" class="btn" onclick="checkAnswer()" disabled>ตรวจคำตอบ</button>
+                            <button id="nextBtn" class="btn" onclick="nextQuestion()" style="display:none;">ข้อถัดไป ➡️</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar" id="sidebar">
+                    <h3>📚 เนื้อหาบทเรียน</h3>
+                    
+                    <span class="topic-title">1. การแสดงผล (print)</span>
+                    <div class="topic-content">
+                        • <code>print("ข้อความ")</code> ต้องมี " " หรือ ' '<br>
+                        • <code>print(123)</code> ตัวเลขไม่ต้องใส่ " "
+                    </div>
+
+                    <span class="topic-title">2. ตัวแปร (Variable)</span>
+                    <div class="topic-content">
+                        • ใช้เก็บข้อมูล เช่น <code>x = 10</code><br>
+                        • ชื่อตัวแปรห้ามขึ้นต้นด้วยตัวเลข
+                    </div>
+
+                    <span class="topic-title">3. ข้อความ (String)</span>
+                    <div class="topic-content">
+                        • <code>"A" + "B"</code> คือการต่อคำ ได้ "AB"<br>
+                        • <code>"A" * 3</code> คือการซ้ำคำ ได้ "AAA"<br>
+                        • ⚠️ ข้อความ บวกกับ ตัวเลข ไม่ได้
+                    </div>
+
+                    <span class="topic-title">4. การรับค่า (input)</span>
+                    <div class="topic-content">
+                        • <code>input()</code> รับค่าจากคีย์บอร์ด<br>
+                        • <strong>ได้ผลลัพธ์เป็น "ข้อความ" เสมอ</strong>
+                    </div>
+
+                    <span class="topic-title">5. การแปลงเป็นตัวเลข (int)</span>
+                    <div class="topic-content">
+                        • ถ้าจะคำนวณ ต้องแปลงด้วย <code>int()</code><br>
+                        • เช่น <code>int("5")</code> จะได้เลข 5
+                    </div>
+
+                    <span class="topic-title">6. การคำนวณทางคณิตศาสตร์</span>
+                    <div class="topic-content">
+                        • <code>+ - *</code> บวก ลบ คูณ<br>
+                        • <code>/</code> หาร (ได้ทศนิยมเสมอ)<br>
+                        • <code>**</code> ยกกำลัง (เช่น 2**3 คือ 2 คูณกัน 3 ครั้ง)<br>
+                        • ลำดับ: ทำ วงเล็บ -> ยกกำลัง -> คูณ/หาร -> บวก/ลบ
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="resultScreen">
+            <div class="score-display" id="finalScore">0</div>
+            <h2>คะแนนรวม</h2>
+            <p id="finalMessage" style="color: #7f8c8d; margin-bottom: 30px;"></p>
+            <button class="btn" onclick="restartApp()">🔄 ทำแบบทดสอบใหม่</button>
+        </div>
+    </div>
+
+    <script>
+        // --- คลังข้อสอบ 30 ข้อ (Scope: Print, Var, Math, StringOps, Input, Int) ---
+        const FULL_QUESTION_DB = [
+            // กลุ่ม 1: พื้นฐาน Print และ String
+            { q: "คำสั่งใดใช้แสดงผลข้อความ?", code: null, opts: ["input()", "print()", "show()", "out()"], c: 1, hint: "แปลว่า 'พิมพ์'" },
+            { q: "ผลลัพธ์ของคำสั่งนี้คือ?", code: 'print("สวัสดี")', opts: ["Error", "สวัสดี", "\"สวัสดี\"", "print"], c: 1, hint: "แสดงข้อความในวงเล็บออกมา" },
+            { q: "ข้อใดเขียนคำสั่งผิด?", code: null, opts: ["print(10)", "print(\"10\")", "Print(\"Hi\")", "print('Hi')"], c: 2, hint: "Python ตัวพิมพ์เล็ก-ใหญ่ ถือเป็นคนละตัวกัน (คำสั่งต้องตัวเล็ก)" },
+            { q: "ผลลัพธ์คืออะไร?", code: 'print("5" + "5")', opts: ["10", "55", "Error", "25"], c: 1, hint: "ข้อความบวกข้อความ คือการนำมาต่อกัน" },
+            { q: "ผลลัพธ์คืออะไร?", code: 'print("A" * 3)', opts: ["AAA", "A3", "Error", "3A"], c: 0, hint: "ข้อความคูณตัวเลข คือการทำซ้ำ" },
+
+            // กลุ่ม 2: คณิตศาสตร์ (Math)
+            { q: "ผลลัพธ์คือ?", code: 'print(10 + 5)', opts: ["105", "15", "Error", "50"], c: 1, hint: "ตัวเลขบวกตัวเลข ได้ผลลัพธ์ทางคณิตศาสตร์" },
+            { q: "ผลลัพธ์คือ?", code: 'print(20 - 5)', opts: ["15", "25", "-15", "100"], c: 0, hint: "การลบเลขปกติ" },
+            { q: "เครื่องหมาย * หมายถึงอะไร?", code: null, opts: ["บวก", "ลบ", "คูณ", "หาร"], c: 2, hint: "ใช้แทนเครื่องหมาย x" },
+            { q: "ผลลัพธ์คือ?", code: 'print(4 * 5)', opts: ["9", "20", "45", "1"], c: 1, hint: "4 คูณ 5 ได้เท่าไหร่?" },
+            { q: "เครื่องหมาย / หมายถึงอะไร?", code: null, opts: ["คูณ", "หาร", "ยกกำลัง", "ลบ"], c: 1, hint: "แบ่งจำนวนเท่าๆ กัน" },
+            { q: "ผลลัพธ์ของการหาร 10 / 2 ใน Python คือ?", code: null, opts: ["5", "5.0", "Error", "2"], c: 1, hint: "การหารด้วย / จะได้ผลเป็นทศนิยมเสมอ" },
+            { q: "เครื่องหมาย ** หมายถึงอะไร?", code: null, opts: ["คูณ", "หาร", "ยกกำลัง", "บวก"], c: 2, hint: "Power หรือ Exponent" },
+            { q: "ผลลัพธ์คือ?", code: 'print(2 ** 3)', opts: ["6", "5", "8", "9"], c: 2, hint: "คือ 2 คูณกัน 3 ตัว (2x2x2)" },
+            { q: "ลำดับการคำนวณ: ข้อใดทำก่อน?", code: 'print(10 + 2 * 3)', opts: ["บวกก่อน", "คูณก่อน", "ทำพร้อมกัน", "ซ้ายไปขวา"], c: 1, hint: "ต้องคูณ/หาร ก่อน บวก/ลบ" },
+            { q: "ผลลัพธ์คือ?", code: 'print(10 + 2 * 3)', opts: ["36", "16", "12", "60"], c: 1, hint: "2*3=6 แล้วบวก 10" },
+
+            // กลุ่ม 3: ตัวแปร (Variables)
+            { q: "ข้อใดคือการสร้างตัวแปรชื่อ score เก็บค่า 100?", code: null, opts: ["score = 100", "100 = score", "score : 100", "print(100)"], c: 0, hint: "ชื่อตัวแปร = ค่า" },
+            { q: "ชื่อตัวแปรในข้อใด **ผิด**?", code: null, opts: ["money", "my_score", "1st_place", "score2"], c: 2, hint: "ห้ามขึ้นต้นด้วยตัวเลข" },
+            { q: "จากโค้ด x มีค่าเท่าไหร่?", code: 'x = 5\nx = x + 2', opts: ["5", "2", "7", "Error"], c: 2, hint: "5 บวก 2 ได้เท่าไหร่?" },
+            { q: "จากโค้ด y มีค่าเท่าไหร่?", code: 'y = 10\ny = 20', opts: ["10", "20", "30", "Error"], c: 1, hint: "ค่าใหม่จะทับค่าเก่า" },
+            { q: "ตัวแปร a เก็บค่าอะไร?", code: 'a = "10"', opts: ["เลข 10", "ข้อความ 10", "ค่าว่าง", "ผิดพลาด"], c: 1, hint: "มีเครื่องหมายคำพูดครอบอยู่" },
+
+            // กลุ่ม 4: Input และ การแปลงค่า (Conversion)
+            { q: "คำสั่ง input() ใช้ทำอะไร?", code: null, opts: ["แสดงผล", "รับค่า", "คำนวณ", "จบโปรแกรม"], c: 1, hint: "Input แปลว่า นำเข้า" },
+            { q: "ข้อมูลที่ได้จาก input() เป็นแบบไหนเสมอ?", code: null, opts: ["ตัวเลข", "ข้อความ", "ทศนิยม", "ค่าความจริง"], c: 1, hint: "String Only" },
+            { q: "ถ้าพิมพ์เลข 5 ใส่ input() จะได้ค่าคือ?", code: 'x = input()', opts: ["5 (เลข)", "\"5\" (ข้อความ)", "5.0", "Error"], c: 1, hint: "ได้เป็นข้อความเสมอ" },
+            { q: "ถ้าพิมพ์เลข 10 และ 20 ผลลัพธ์คือ?", code: 'a = input()\nb = input()\nprint(a + b)', opts: ["30", "1020", "Error", "2010"], c: 1, hint: "ข้อความต่อข้อความ ('10' ต่อกับ '20')" },
+            { q: "ทำไมโค้ดนี้ถึง Error?", code: 'age = input()\nprint(age + 5)', opts: ["เขียนผิด", "age เป็นข้อความ บวกเลขไม่ได้", "ไม่มีตัวแปร", "ต้องใช้ลบ"], c: 1, hint: "ข้อความ + ตัวเลข ทำไม่ได้" },
+            { q: "ต้องใช้คำสั่งใดแปลงข้อความเป็นตัวเลข?", code: null, opts: ["str()", "change()", "int()", "num()"], c: 2, hint: "Integer แปลว่าจำนวนเต็ม" },
+            { q: "ผลลัพธ์คือ?", code: 'print(int("10") + 5)', opts: ["105", "15", "Error", "50"], c: 1, hint: "แปลง '10' เป็นเลข 10 แล้วบวก 5" },
+            { q: "ผลลัพธ์คือ?", code: 'x = "2"\ny = "3"\nprint(int(x) + int(y))', opts: ["23", "5", "6", "Error"], c: 1, hint: "แปลงเป็นเลขทั้งคู่ แล้วบวกกัน" },
+            { q: "ข้อใดให้ผลลัพธ์เป็นข้อความ?", code: null, opts: ["int(5)", "str(5)", "5+5", "10/2"], c: 1, hint: "str ย่อมาจาก String" },
+            { q: "print(int(3.9)) ได้ผลลัพธ์เท่าไหร่?", code: null, opts: ["4", "3", "3.9", "Error"], c: 1, hint: "int() จะตัดทศนิยมทิ้ง ไม่ปัดเศษ" }
+        ];
+
+        // --- Logic ---
+        let currentQuestions = [];
+        let currentIndex = 0;
+        let score = 0;
+        let selectedChoice = null;
+        let isChecked = false;
+
+        function startApp() {
+            const name = document.getElementById('username').value.trim();
+            if(!name) { alert("กรุณาใส่ชื่อก่อนครับ"); return; }
+            document.getElementById('displayUser').innerText = name;
+            document.getElementById('welcomeScreen').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+            
+            initQuiz();
+        }
+
+        function initQuiz() {
+            // สุ่ม 20 ข้อจาก 30
+            currentQuestions = [...FULL_QUESTION_DB]
+                                .sort(() => 0.5 - Math.random())
+                                .slice(0, 20);
+            currentIndex = 0;
+            score = 0;
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            selectedChoice = null;
+            isChecked = false;
+            
+            // Reset UI
+            document.getElementById('checkBtn').disabled = true;
+            document.getElementById('checkBtn').style.display = 'inline-block';
+            document.getElementById('nextBtn').style.display = 'none';
+            document.getElementById('feedbackArea').style.display = 'none';
+            document.getElementById('feedbackArea').className = 'feedback-box';
+
+            // Text
+            document.getElementById('progressText').innerText = `ข้อที่ ${currentIndex + 1}/${currentQuestions.length}`;
+            const qData = currentQuestions[currentIndex];
+            document.getElementById('questionText').innerText = qData.q;
+            
+            const codeContainer = document.getElementById('codeContainer');
+            if(qData.code) {
+                codeContainer.innerHTML = `<div class="code-block-q">${qData.code.replace(/\n/g, '<br>')}</div>`;
+            } else {
+                codeContainer.innerHTML = '';
+            }
+
+            // Options
+            const optsDiv = document.getElementById('optionsContainer');
+            optsDiv.innerHTML = "";
+            qData.opts.forEach((opt, idx) => {
+                const btn = document.createElement('div');
+                btn.className = 'option';
+                btn.innerText = opt;
+                btn.onclick = () => selectOption(idx, btn);
+                optsDiv.appendChild(btn);
+            });
+        }
+
+        function selectOption(idx, element) {
+            if(isChecked) return;
+            selectedChoice = idx;
+            document.querySelectorAll('.option').forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+            document.getElementById('checkBtn').disabled = false;
+        }
+
+        function checkAnswer() {
+            if(selectedChoice === null) return;
+            isChecked = true;
+            const qData = currentQuestions[currentIndex];
+            const optionsElements = document.querySelectorAll('.option');
+            const feedbackArea = document.getElementById('feedbackArea');
+
+            // Lock options
+            optionsElements.forEach(el => el.classList.add('disabled'));
+
+            if(selectedChoice === qData.c) {
+                // Correct
+                score++;
+                optionsElements[selectedChoice].classList.remove('selected');
+                optionsElements[selectedChoice].classList.add('correct');
+                feedbackArea.classList.add('feedback-correct');
+                document.getElementById('feedbackTitle').innerText = "✅ ถูกต้อง!";
+                document.getElementById('feedbackContent').innerText = "เก่งมาก! คำตอบถูกต้อง";
+            } else {
+                // Incorrect (Show Red Only)
+                optionsElements[selectedChoice].classList.remove('selected');
+                optionsElements[selectedChoice].classList.add('incorrect');
+                feedbackArea.classList.add('feedback-incorrect');
+                document.getElementById('feedbackTitle').innerText = "❌ ยังไม่ถูก";
+                document.getElementById('feedbackContent').innerText = "Hint: " + qData.hint;
+            }
+
+            feedbackArea.style.display = 'block';
+            document.getElementById('checkBtn').style.display = 'none';
+            document.getElementById('nextBtn').style.display = 'inline-block';
+        }
+
+        function nextQuestion() {
+            if(currentIndex < currentQuestions.length - 1) {
+                currentIndex++;
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            document.getElementById('mainContent').style.display = 'none';
+            document.getElementById('resultScreen').style.display = 'block';
+            document.getElementById('finalScore').innerText = `${score} / 20`;
+            
+            const percent = (score/20)*100;
+            let msg = "";
+            if(percent >= 80) msg = "สุดยอด! เข้าใจพื้นฐานแน่นมาก 🏆";
+            else if(percent >= 50) msg = "ทำได้ดี! ฝึกฝนอีกนิดนะ 👍";
+            else msg = "สู้ๆ! ลองอ่านเนื้อหาแล้วทำใหม่นะ 💪";
+            document.getElementById('finalMessage').innerText = msg;
+        }
+
+        function restartApp() {
+            document.getElementById('resultScreen').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+            initQuiz();
+        }
+
+        function toggleSidebar() {
+            const grid = document.getElementById('layoutGrid');
+            const sidebar = document.getElementById('sidebar');
+            if(window.innerWidth <= 900) {
+                sidebar.classList.toggle('mobile-show');
+            } else {
+                grid.classList.toggle('hide-sidebar');
+                if(grid.classList.contains('hide-sidebar')) sidebar.style.display = 'none';
+                else sidebar.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>
