@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Coding Mission: Easy Explanation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&family=Source+Code+Pro:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- Ocean Breeze Theme (Same as before) --- */
+        :root {
+            --primary-color: #00695c;
+            --secondary-color: #43a047;
+            --danger-color: #e53935;
+            --bg-color: #e0f2f1;
+            --card-bg: #ffffff;
+            --code-bg: #b2dfdb;
+            --code-text: #004d40;
+            --selected-border: #ff8f00;
+            --hover-bg: #80cbc4;
+        }
+        * { box-sizing: border-box; }
+        body { font-family: 'Prompt', sans-serif; margin: 0; padding: 0; background-color: var(--bg-color); color: #37474f; display: flex; flex-direction: column; min-height: 100vh; }
+        header { background: var(--primary-color); color: white; padding: 1rem 2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; z-index: 100; }
+        .logo { font-weight: 600; font-size: 1.4rem; color: #b2dfdb; }
+        .screen { display: none; flex: 1; padding: 20px; flex-direction: column; align-items: center; justify-content: center; animation: fadeEffect 0.5s; }
+        .screen.active { display: flex; }
+        @keyframes fadeEffect { from {opacity: 0;} to {opacity: 1;} }
+        .card { background: var(--card-bg); padding: 2.5rem; border-radius: 20px; box-shadow: 0 10px 25px rgba(0, 105, 92, 0.15); text-align: center; max-width: 600px; width: 100%; border: 4px solid #ffffff; }
+        input[type="text"] { width: 100%; padding: 15px; margin: 20px 0; border: 2px solid #b0bec5; border-radius: 12px; font-family: 'Prompt'; font-size: 1.1rem; background: #f1f8e9; color: #004d40; }
+        input[type="text"]:focus { border-color: var(--primary-color); outline: none; background: #fff; }
+        .btn { background: var(--primary-color); color: white; border: none; padding: 12px 35px; border-radius: 50px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 0 #004d40; }
+        .btn:active { transform: translateY(4px); box-shadow: none; }
+        .btn:disabled { background: #cfd8dc; color: #90a4ae; cursor: not-allowed; box-shadow: none; }
+        .quiz-container { display: flex; width: 100%; max-width: 1200px; gap: 20px; position: relative; }
+        .question-box { flex: 2; background: var(--card-bg); border-radius: 16px; padding: 2rem; box-shadow: 0 5px 15px rgba(0,0,0,0.05); border: 2px solid #b2dfdb; }
+        .header-info { display: flex; justify-content: space-between; color: #546e7a; margin-bottom: 15px; font-size: 1.1rem; font-weight: 600; }
+        
+        h2.q-title { margin: 0 0 10px 0; font-size: 1.5rem; color: var(--primary-color); }
+        .mission-desc { font-size: 1.1rem; color: #455a64; margin-bottom: 20px; background: #e0f2f1; padding: 15px; border-radius: 10px; text-align: left; border-left: 5px solid var(--primary-color); }
+        .instruction { font-size: 0.95rem; color: #e65100; background: #fff3e0; padding: 8px 12px; border-radius: 8px; display: inline-block; margin-bottom: 20px; font-weight: 600; }
+        
+        .sortable-list { list-style: none; padding: 0; margin: 0; }
+        .sortable-list li { background: var(--code-bg); color: var(--code-text); font-family: 'Source Code Pro', monospace; font-weight: 600; font-size: 1.2rem; padding: 18px; margin-bottom: 12px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; border: 3px solid transparent; transition: all 0.2s ease; user-select: none; box-shadow: 0 2px 5px rgba(0,0,0, 0.05); }
+        .sortable-list li:hover { transform: translateX(5px); background: var(--hover-bg); }
+        .sortable-list li.selected { border-color: var(--selected-border); background: #fff8e1; color: #e65100; box-shadow: 0 0 15px rgba(255, 143, 0, 0.4); z-index: 10; }
+        .sortable-list li.correct { border-color: var(--secondary-color); background: #c8e6c9; color: #1b5e20; }
+        .sortable-list li.wrong { border-color: var(--danger-color); background: #ffcdd2; color: #b71c1c; animation: shake 0.4s; }
+
+        @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-10px); } 50% { transform: translateX(10px); } 75% { transform: translateX(-10px); } 100% { transform: translateX(0); } }
+
+        .sidebar { flex: 1; background: var(--card-bg); border-radius: 16px; padding: 20px; height: fit-content; box-shadow: 0 5px 15px rgba(0,0,0,0.05); display: none; border: 2px solid #b2dfdb; }
+        .sidebar.active { display: block; }
+        
+        .hint-area { margin-top: 20px; padding: 15px; border-radius: 12px; background: #fffde7; color: #f57f17; display: flex; align-items: center; opacity: 0; transition: opacity 0.3s; font-weight: 600; border: 2px dashed #fbc02d; }
+        .hint-visible { opacity: 1; }
+        .result-score { font-size: 5rem; font-weight: 800; color: var(--primary-color); margin: 10px 0; text-shadow: 3px 3px 0px #b2dfdb; }
+
+        @media (min-width: 900px) { .sidebar { display: block; } }
+        @media (max-width: 899px) { .quiz-container { flex-direction: column; } .sidebar { margin-top: 20px; width:100%; } }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo"><i class="fa-solid fa-robot"></i> Python Adventure</div>
+        <div id="user-ui" style="display:none; font-weight:600;">
+            <i class="fa-solid fa-user-astronaut"></i> <span id="display-name">Player</span>
+        </div>
+    </header>
+
+    <div id="screen-login" class="screen active">
+        <div class="card">
+            <h1 style="color:var(--primary-color);">ภารกิจเขียนโปรแกรม</h1>
+            <p style="font-size:1.1rem;">นักเรียนช่วยเรียงลำดับ "คำสั่ง" เพื่อแก้ปัญหาในแต่ละด่าน</p>
+            <i class="fa-solid fa-puzzle-piece" style="font-size: 4rem; color: #26a69a; margin: 20px;"></i>
+            <div style="margin-bottom: 20px; background:#e0f2f1; padding:15px; border-radius:10px; text-align:left;">
+                <strong><i class="fa-solid fa-lightbulb"></i> วิธีเล่น:</strong><br>
+                1. อ่าน "ภารกิจ" ว่าโจทย์ต้องการอะไร<br>
+                2. อ่าน "คู่มือ" ด้านขวาเพื่อดูตัวอย่าง<br>
+                3. เรียงโค้ดให้ถูกต้อง (ลาก หรือ คลิกเพื่อสลับ)
+            </div>
+            <input type="text" id="username" placeholder="พิมพ์ชื่อที่นี่..." autocomplete="off">
+            <button class="btn" onclick="startGame()">เริ่มภารกิจ! <i class="fa-solid fa-play"></i></button>
+        </div>
+    </div>
+
+    <div id="screen-quiz" class="screen">
+        <div class="quiz-container">
+            <div class="question-box">
+                <div class="header-info">
+                    <span><i class="fa-solid fa-map-location-dot"></i> ด่านที่ <span id="q-current">1</span> / 20</span>
+                    <span><i class="fa-solid fa-star"></i> คะแนน: <span id="q-score">0</span></span>
+                </div>
+
+                <h2 id="q-text" class="q-title">Mission Title</h2>
+                <div id="q-desc" class="mission-desc">Mission Description</div>
+                
+                <div class="instruction">
+                    <i class="fa-solid fa-arrow-pointer"></i> เรียงลำดับโค้ดจาก บน ลง ล่าง
+                </div>
+
+                <ul id="sortable-list" class="sortable-list"></ul>
+
+                <div id="hint-box" class="hint-area">
+                    <i class="fa-solid fa-circle-info" style="margin-right:10px; font-size:1.5rem;"></i>
+                    <span id="hint-text">...</span>
+                </div>
+
+                <div style="text-align: right; margin-top: 20px;">
+                    <button id="submit-btn" class="btn" onclick="checkAnswer()">ส่งคำตอบ <i class="fa-solid fa-paper-plane"></i></button>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <h3 style="color:var(--primary-color); border-bottom:3px solid #b2dfdb; padding-bottom:10px;">
+                    <i class="fa-solid fa-book-journal-whills"></i> คำแนะนำ
+                </h3>
+                <div id="lesson-content" style="line-height:1.7; color:#37474f; font-size:1.05rem;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="screen-result" class="screen">
+        <div class="card">
+            <h2>สรุปผลภารกิจ</h2>
+            <p>ผู้ทดสอบ: <span id="end-name" style="font-weight:600; color:var(--primary-color);"></span></p>
+            <div class="result-score" id="end-score">0%</div>
+            <p id="end-msg">ยอดเยี่ยมมาก!</p>
+            <hr style="margin: 20px 0; border:0; border-top:1px solid #cfd8dc;">
+            <button class="btn" style="background:#fbc02d; color:#3e2723;" onclick="resetGame()">
+                <i class="fa-solid fa-rotate-right"></i> เล่นใหม่อีกครั้ง
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- ฐานข้อมูลโจทย์ปรับปรุงใหม่ (30 ข้อ) ---
+        // เน้นคำอธิบายที่ "เป็นภาษาคน" "มีตัวอย่าง" และ "บอกเหตุผล"
+        
+        const fullDB = [
+            // --- Group 1: การเปรียบเทียบตัวเลข (More/Less) ---
+            { 
+                id: 1, 
+                topic: "ภารกิจ: ตรวจจับความร้อน", 
+                desc: "ถ้าอุณหภูมิ (temp) <strong>มากกว่า</strong> 35 องศา ให้แจ้งเตือนว่า 'Hot'", 
+                code: ["temp = 38", "if temp > 35:", "&nbsp;&nbsp;print('Hot')"], 
+                hint: "ต้องกำหนดค่าอุณหภูมิก่อน แล้วค่อยเช็คด้วย if", 
+                lesson: "<strong>เครื่องหมาย > (มากกว่า)</strong><br>ใช้เช็คว่าค่าข้างหน้า เยอะกว่า ค่าข้างหลังไหม<br>ตัวอย่าง:<br><code>if คะแนน > 50:</code><br>แปลว่า ถ้าคะแนนมากกว่า 50 ให้ทำ..." 
+            },
+            { 
+                id: 2, 
+                topic: "ภารกิจ: จำกัดอายุ", 
+                desc: "ถ้าอายุ (age) <strong>น้อยกว่า</strong> 10 ขวบ ให้บอกว่า 'Kid'", 
+                code: ["age = 8", "if age < 10:", "&nbsp;&nbsp;print('Kid')"], 
+                hint: "เครื่องหมาย < (น้อยกว่า) หันปลายแหลมไปทางซ้าย", 
+                lesson: "<strong>เครื่องหมาย < (น้อยกว่า)</strong><br>ใช้เช็คว่าค่าน้อยกว่าไหม<br>ตัวอย่าง:<br><code>if เงิน < 100:</code> (ถ้าเงินน้อยกว่า 100)" 
+            },
+            { 
+                id: 3, 
+                topic: "ภารกิจ: ผ่านเกณฑ์ไหม?", 
+                desc: "ถ้าคะแนน (score) <strong>มากกว่าหรือเท่ากับ</strong> 50 ให้บอกว่า 'Pass'", 
+                code: ["score = 50", "if score >= 50:", "&nbsp;&nbsp;print('Pass')"], 
+                hint: "มากกว่า หรือ เท่ากับ เขียนโดยใช้ > ตามด้วย =", 
+                lesson: "<strong>เครื่องหมาย >= (มากกว่าหรือเท่ากับ)</strong><br>คือการรวม 2 เงื่อนไขเข้าด้วยกัน<br>จะเป็น 50 เป๊ะๆ ก็ได้ หรือมากกว่า 50 ก็ได้" 
+            },
+
+            // --- Group 2: การเปรียบเทียบความเท่ากัน (Equals) ---
+            { 
+                id: 4, 
+                topic: "ภารกิจ: ประตูอัตโนมัติ", 
+                desc: "ถ้ารหัส (pw) <strong>เท่ากับ</strong> '1234' ให้เปิดประตู ('Open')", 
+                code: ["pw = '1234'", "if pw == '1234':", "&nbsp;&nbsp;print('Open')"], 
+                hint: "ระวังนะ! ถ้าจะเปรียบเทียบต้องใช้เครื่องหมายเท่ากับ 2 ตัว (==)", 
+                lesson: "<strong>ทำไมต้องใช้ == ?</strong><br>ใน Python:<br><code>=</code> ตัวเดียว แปลว่า <strong>'ฝากค่า'</strong> (เช่น x = 5)<br><code>==</code> สองตัว แปลว่า <strong>'เปรียบเทียบ'</strong> (เช่น x เท่ากับ 5 ไหม?)" 
+            },
+            { 
+                id: 5, 
+                topic: "ภารกิจ: สวิตช์ไฟ", 
+                desc: "ถ้าสวิตช์ (switch) คือ 'On' ให้เปิดไฟ", 
+                code: ["switch = 'On'", "if switch == 'On':", "&nbsp;&nbsp;print('Light On')"], 
+                hint: "ต้องเช็คว่าตัวแปร switch มีค่าเท่ากับคำว่า On หรือไม่", 
+                lesson: "<strong>การเช็คความเหมือน</strong><br>เราใช้ <code>==</code> เช็คข้อความได้ด้วยนะ<br>เช่นเช็คว่าใช่คำว่า 'On' หรือเปล่า" 
+            },
+
+            // --- Group 3: สิ่งที่ไม่เหมือนกัน (Not Equal) ---
+            { 
+                id: 6, 
+                topic: "ภารกิจ: ห้ามเข้า", 
+                desc: "ถ้าชื่อ (name) <strong>ไม่ใช่</strong> 'Admin' ให้แจ้งเตือนว่า 'Alert'", 
+                code: ["name = 'Guest'", "if name != 'Admin':", "&nbsp;&nbsp;print('Alert')"], 
+                hint: "เครื่องหมาย != แปลว่า ไม่เท่ากับ (หรือไม่ใช่)", 
+                lesson: "<strong>เครื่องหมาย != (ไม่ใช่)</strong><br>ใช้เมื่อเราต้องการดักจับสิ่งที่ <strong>แตกต่าง</strong><br>ตัวอย่าง:<br><code>if สี != 'แดง':</code> (ถ้าสีไม่ใช่สีแดง)" 
+            },
+            { 
+                id: 7, 
+                topic: "ภารกิจ: วันทำงาน", 
+                desc: "ถ้าวัน (day) <strong>ไม่เท่ากับ</strong> 'Sunday' ให้บอกว่า 'Work'", 
+                code: ["day = 'Monday'", "if day != 'Sunday':", "&nbsp;&nbsp;print('Work')"], 
+                hint: "ถ้าไม่ใช่วันอาทิตย์ ก็แปลว่าต้องทำงาน", 
+                lesson: "<strong>การยกเว้น</strong><br>เราใช้ <code>!=</code> เพื่อบอกว่า 'ถ้าเป็นอะไรก็ได้ ที่ไม่ใช่อันนี้'<br>เช่น วันอะไรก็ได้ ที่ไม่ใช่วันอาทิตย์" 
+            },
+
+            // --- Group 4: ข้อความ (String Exact Match) ---
+            { 
+                id: 8, 
+                topic: "ภารกิจ: หุ่นยนต์ทักทาย", 
+                desc: "ถ้าพิมพ์คำว่า 'hello' (ตัวเล็กทั้งหมด) ให้ตอบกลับ", 
+                code: ["msg = 'hello'", "if msg == 'hello':", "&nbsp;&nbsp;print('Hi')"], 
+                hint: "คอมพิวเตอร์มองว่า 'H' ตัวใหญ่ กับ 'h' ตัวเล็ก ไม่เหมือนกันนะ", 
+                lesson: "<strong>ตัวเล็ก vs ตัวใหญ่ (Case Sensitive)</strong><br>คอมพิวเตอร์เป๊ะมาก!<br>คำว่า <code>'Hi'</code> กับ <code>'hi'</code> ถือว่าเป็นคนละคำกัน<br>ต้องเขียนให้เหมือนกันทุกตัวอักษร" 
+            },
+            { 
+                id: 9, 
+                topic: "ภารกิจ: รหัสลับ", 
+                desc: "รหัสคือ 'A1' (A ตัวใหญ่) ถ้าใส่ถูกให้บอก 'Correct'", 
+                code: ["code = 'A1'", "if code == 'A1':", "&nbsp;&nbsp;print('Correct')"], 
+                hint: "เช็คดูซิว่าใส่ A ตัวใหญ่หรือเปล่า?", 
+                lesson: "<strong>ความแม่นยำของข้อความ</strong><br>เวลาเช็ครหัสผ่าน ต้องระวังเรื่องตัวพิมพ์ใหญ่-พิมพ์เล็ก<br>และห้ามมีช่องว่างเกินมาด้วยนะ" 
+            },
+
+            // --- Group 5: Else (ถ้าไม่... แล้วให้ทำ...) ---
+            { 
+                id: 10, 
+                topic: "ภารกิจ: แยกขยะ", 
+                desc: "ถ้าเป็น 'Plastic' ใส่ถังแดง <br><strong>ถ้าไม่ใช่ (else)</strong> ให้ใส่ถังเขียว", 
+                code: ["item = 'Paper'", "if item == 'Plastic':", "&nbsp;&nbsp;print('Red')", "else:", "&nbsp;&nbsp;print('Green')"], 
+                hint: "else เอาไว้ต่อท้าย เพื่อบอกว่า 'ถ้าไม่เข้าเงื่อนไขบน ให้ทำอันนี้แทน'", 
+                lesson: "<strong>รู้จักกับ else (ถ้าไม่ใช่)</strong><br>else เหมือนแผนสำรอง<br>ถ้าเงื่อนไข <code>if</code> ไม่จริง โปรแกรมจะกระโดดมาทำที่ <code>else</code> ทันที" 
+            },
+            { 
+                id: 11, 
+                topic: "ภารกิจ: เหรียญออกหัว/ก้อย", 
+                desc: "ถ้าออก 'Head' คือชนะ ถ้าไม่ใช่ (else) คือแพ้", 
+                code: ["coin = 'Tail'", "if coin == 'Head':", "&nbsp;&nbsp;print('Win')", "else:", "&nbsp;&nbsp;print('Lose')"], 
+                hint: "ถ้าไม่ใช่ Head ก็ต้องเป็น Tail แน่นอน ใช้ else ได้เลย", 
+                lesson: "<strong>ทางเลือกสองทาง</strong><br>เมื่อมีแค่ 2 ทางเลือก (เช่น ชนะ/แพ้, จริง/เท็จ)<br>เราใช้ <code>if...else...</code> ได้เลย ไม่ต้องเขียนเงื่อนไขซ้ำ" 
+            },
+
+            // --- Group 6: ตรรกะรวม (AND / OR) ---
+            { 
+                id: 12, 
+                topic: "ภารกิจ: ซื้อของ", 
+                desc: "จะซื้อได้ต้อง มีเงิน <strong>และ</strong> ร้านเปิด", 
+                code: ["money = True", "shop_open = True", "if money and shop_open:", "&nbsp;&nbsp;print('Buy')"], 
+                valid_patterns: ["0-1-2-3", "1-0-2-3"],
+                hint: "ใช้คำว่า and เชื่อม แปลว่าต้องครบทั้ง 2 อย่าง", 
+                lesson: "<strong>และ (and)</strong><br>เงื่อนไขโหดหิน!<br>ต้อง <strong>จริงทั้งคู่</strong> เท่านั้น ถึงจะผ่านได้<br>ถ้าขาดอย่างใดอย่างหนึ่ง ถือว่าไม่ได้" 
+            },
+            { 
+                id: 13, 
+                topic: "ภารกิจ: วันหยุด", 
+                desc: "ถ้าเป็นวันเสาร์ <strong>หรือ</strong> วันอาทิตย์ ก็ได้ ให้บอกว่า 'Holiday'", 
+                code: ["day = 'Sat'", "if day == 'Sat' or day == 'Sun':", "&nbsp;&nbsp;print('Holiday')"], 
+                hint: "ใช้คำว่า or เชื่อม แปลว่าอย่างใดอย่างหนึ่งก็ได้", 
+                lesson: "<strong>หรือ (or)</strong><br>เงื่อนไขใจดี!<br>ขอแค่ <strong>อย่างน้อยหนึ่งอันจริง</strong> ก็ผ่านฉลุย" 
+            },
+
+            // --- Group 7: การคำนวณและเงื่อนไข ---
+            { 
+                id: 14, 
+                topic: "ภารกิจ: เงินทอน", 
+                desc: "มีเงิน 100 ซื้อของ 80 <br>ให้หาเงินทอนก่อน แล้วเช็คว่าเงินทอนถูกต้องไหม (ต้องเหลือ 20)", 
+                code: ["money = 100", "price = 80", "change = money - price", "if change == 20:", "&nbsp;&nbsp;print('Correct')"], 
+                valid_patterns: ["0-1-2-3-4", "1-0-2-3-4"],
+                hint: "ต้องลบเลขก่อน (money - price) แล้วค่อยเอาผลลัพธ์มาเช็ค", 
+                lesson: "<strong>ลำดับ: คิดเลขก่อน แล้วค่อยเช็ค</strong><br>โปรแกรมต้องคำนวณหาผลลัพธ์ก่อน<br>แล้วค่อยเอาผลลัพธ์นั้นไปเปรียบเทียบใน <code>if</code>" 
+            },
+            { 
+                id: 15, 
+                topic: "ภารกิจ: ส่วนลด", 
+                desc: "ถ้ายอดซื้อ (buy) เกิน 1000 ให้ลดราคา 100 บาท", 
+                code: ["buy = 1200", "if buy > 1000:", "&nbsp;&nbsp;buy = buy - 100", "&nbsp;&nbsp;print(buy)"], 
+                hint: "ถ้าเงื่อนไขจริง ให้ลบเงินออก 100", 
+                lesson: "<strong>การเปลี่ยนค่าใน if</strong><br>เราสามารถคำนวณใหม่เฉพาะตอนที่เงื่อนไขเป็นจริงได้<br>เช่น ถ้าซื้อเยอะ ก็ลดราคาให้" 
+            },
+
+            // --- Group 8: โจทย์คละแบบ (Practice) ---
+            { id: 16, topic: "ภารกิจ: เช็คแบตเตอรี่", desc: "ถ้าแบตเหลือ <strong>น้อยกว่า</strong> 20 ให้เตือนชาร์จ", code: ["bat = 15", "if bat < 20:", "&nbsp;&nbsp;print('Low Battery')"], hint: "น้อยกว่าใช้เครื่องหมาย <", lesson: "เครื่องหมาย < (น้อยกว่า)" },
+            { id: 17, topic: "ภารกิจ: ตรวจบัตร", desc: "ถ้าบัตร (card) คือ 'VIP' ให้เข้าช่องพิเศษ", code: ["card = 'VIP'", "if card == 'VIP':", "&nbsp;&nbsp;print('Fast Lane')"], hint: "เช็คคำว่า VIP", lesson: "เปรียบเทียบข้อความด้วย ==" },
+            { id: 18, topic: "ภารกิจ: น้ำเดือด", desc: "ถ้าน้ำร้อน <strong>เท่ากับ</strong> 100 องศา ให้บอกว่า 'Boil'", code: ["temp = 100", "if temp == 100:", "&nbsp;&nbsp;print('Boil')"], hint: "เท่ากับ ต้องใช้ = สองตัวนะ", lesson: "== คือเท่ากับ" },
+            { id: 19, topic: "ภารกิจ: ห้ามสอบ", desc: "ถ้ามาสาย (late) เป็น True คือห้ามสอบ", code: ["late = True", "if late:", "&nbsp;&nbsp;print('No Exam')"], hint: "ถ้าตัวแปรเป็น True อยู่แล้ว ใส่ชื่อตัวแปรหลัง if ได้เลย", lesson: "<strong>ทางลัด Boolean</strong><br>เขียนแค่ <code>if late:</code><br>มีค่าเท่ากับ <code>if late == True:</code>" },
+            { id: 20, topic: "ภารกิจ: เลือกสี", desc: "ถ้าสีเป็น 'Red' <strong>หรือ</strong> 'Blue' ก็ชอบหมด", code: ["color = 'Red'", "if color == 'Red' or color == 'Blue':", "&nbsp;&nbsp;print('Like')"], hint: "อย่างใดอย่างหนึ่งใช้ or", lesson: "or (หรือ)" },
+            { id: 21, topic: "ภารกิจ: บังคับ 2 อย่าง", desc: "ต้องอายุ 18+ <strong>และ</strong> มีบัตรประชาชน", code: ["age = 18", "has_id = True", "if age >= 18 and has_id:", "&nbsp;&nbsp;print('Pass')"], valid_patterns: ["0-1-2-3", "1-0-2-3"], hint: "ต้องครบทั้งคู่ใช้ and", lesson: "and (และ)" },
+            { id: 22, topic: "ภารกิจ: ข้อความว่างเปล่า", desc: "ถ้าข้อความ (txt) เป็นค่าว่าง '' ให้แจ้งเตือน", code: ["txt = ''", "if txt == '':", "&nbsp;&nbsp;print('Empty')"], hint: "เครื่องหมายฟันหนูติดกัน '' คือข้อความว่าง", lesson: "<strong>Empty String</strong><br>คือข้อความที่ไม่มีตัวอักษรข้างในเลย เขียนแทนด้วย <code>''</code>" },
+            { id: 23, topic: "ภารกิจ: เช็คความยาว", desc: "ถ้าชื่อยาวเกิน 10 ตัวอักษร ให้บอกว่า 'Long Name'", code: ["name = 'Christopher'", "if len(name) > 10:", "&nbsp;&nbsp;print('Long Name')"], hint: "ใช้คำสั่ง len() เพื่อนับตัวอักษร", lesson: "<strong>len()</strong> ย่อมาจาก Length (ความยาว)<br>ใช้นับว่ามีกี่ตัวอักษร" },
+            { id: 24, topic: "ภารกิจ: ไม่ใช่ศูนย์", desc: "ถ้าตัวเลข (num) <strong>ไม่เท่ากับ</strong> 0 ให้หารได้", code: ["num = 5", "if num != 0:", "&nbsp;&nbsp;print(100 / num)"], hint: "ไม่เท่ากับใช้ !=", lesson: "!= (ไม่เท่ากับ)" },
+            { id: 25, topic: "ภารกิจ: ผลสอบ", desc: "ถ้าคะแนน < 50 ตก <strong>(else)</strong> ผ่าน", code: ["score = 60", "if score < 50:", "&nbsp;&nbsp;print('Fail')", "else:", "&nbsp;&nbsp;print('Pass')"], hint: "ถ้าเงื่อนไข if ไม่จริง มันจะไปทำ else", lesson: "if...else..." },
+            { id: 26, topic: "ภารกิจ: ลิฟต์", desc: "ถ้าน้ำหนักรวม (weight) เกิน 500 ให้เตือน", code: ["weight = 600", "if weight > 500:", "&nbsp;&nbsp;print('Overload')"], hint: "มากกว่าใช้ >", lesson: "> (มากกว่า)" },
+            { id: 27, topic: "ภารกิจ: เปรียบเทียบของ", desc: "ถ้า A แพงกว่า B ให้ซื้อ B", code: ["price_a = 50", "price_b = 40", "if price_a > price_b:", "&nbsp;&nbsp;print('Buy B')"], valid_patterns: ["0-1-2-3", "1-0-2-3"], hint: "เทียบตัวแปร 2 ตัวได้เลย", lesson: "เปรียบเทียบตัวแปร" },
+            { id: 28, topic: "ภารกิจ: วันเกิด", desc: "ถ้าวัน (d) คือ 25 <strong>และ</strong> เดือน (m) คือ 12 ให้บอก Merry Xmas", code: ["d = 25", "m = 12", "if d == 25 and m == 12:", "&nbsp;&nbsp;print('Merry Xmas')"], valid_patterns: ["0-1-2-3", "1-0-2-3"], hint: "ต้องตรงทั้งวันและเดือน", lesson: "and (และ)" },
+            { id: 29, topic: "ภารกิจ: รหัสผ่านสั้น", desc: "ถ้ารหัส (pw) สั้นกว่า 4 ตัว ให้บอกว่า 'Weak'", code: ["pw = '123'", "if len(pw) < 4:", "&nbsp;&nbsp;print('Weak')"], hint: "ใช้ len() นับจำนวน", lesson: "len() ความยาว" },
+            { id: 30, topic: "ภารกิจ: เริ่มเกม", desc: "ถ้ากด start ให้เริ่ม", code: ["cmd = 'start'", "if cmd == 'start':", "&nbsp;&nbsp;print('Game Start')"], hint: "เช็คคำสั่งให้ตรงเป๊ะ", lesson: "String Match" }
+        ];
+
+        let questions = [];
+        let curIdx = 0;
+        let score = 0;
+        let userName = "";
+        let selectedItem = null;
+
+        function startGame() {
+            const nameInput = document.getElementById('username');
+            if(!nameInput.value.trim()) { alert("โปรดพิมพ์ชื่อก่อน!"); return; }
+            userName = nameInput.value;
+            document.getElementById('user-ui').style.display = 'block';
+            document.getElementById('display-name').innerText = userName;
+
+            let temp = [...fullDB];
+            temp.sort(() => Math.random() - 0.5);
+            questions = temp.slice(0, 20);
+
+            document.getElementById('screen-login').classList.remove('active');
+            document.getElementById('screen-quiz').classList.add('active');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            document.getElementById('submit-btn').disabled = false;
+            document.getElementById('hint-box').classList.remove('hint-visible');
+            selectedItem = null;
+
+            const q = questions[curIdx];
+            document.getElementById('q-current').innerText = curIdx + 1;
+            document.getElementById('q-score').innerText = score;
+            
+            // แสดงข้อมูลแบบภารกิจ
+            document.getElementById('q-text').innerText = q.topic;
+            document.getElementById('q-desc').innerHTML = q.desc;
+            document.getElementById('hint-text').innerText = q.hint;
+            document.getElementById('lesson-content').innerHTML = q.lesson;
+
+            const list = document.getElementById('sortable-list');
+            list.innerHTML = "";
+            
+            // Logic สุ่มลำดับ (เหมือนเดิม)
+            let items = q.code.map((line, index) => ({ line, originalIndex: index }));
+            let allowedPatterns = q.valid_patterns || []; 
+            if (allowedPatterns.length === 0) allowedPatterns = [q.code.map((_, i) => i).join("-")];
+
+            let maxTries = 50;
+            do {
+                items.sort(() => Math.random() - 0.5);
+                let currentPattern = items.map(i => i.originalIndex).join("-");
+                if (!allowedPatterns.includes(currentPattern)) break;
+                maxTries--;
+            } while (maxTries > 0);
+
+            items.forEach(item => {
+                const li = document.createElement('li');
+                // แสดงโค้ดโดยรองรับ &nbsp;
+                li.innerHTML = `<span>${item.line}</span><i class="fa-solid fa-arrows-up-down" style="color:#004d40; opacity:0.5;"></i>`;
+                li.setAttribute('data-id', item.originalIndex);
+                li.setAttribute('draggable', 'true');
+                addInteractionEvents(li);
+                list.appendChild(li);
+            });
+        }
+
+        function checkAnswer() {
+            const btn = document.getElementById('submit-btn');
+            btn.disabled = true;
+
+            const listItems = document.querySelectorAll('#sortable-list li');
+            let userPattern = [];
+            listItems.forEach(li => userPattern.push(li.getAttribute('data-id')));
+            const userPatternStr = userPattern.join("-");
+
+            const q = questions[curIdx];
+            let allowedPatterns = q.valid_patterns || []; 
+            if (allowedPatterns.length === 0) allowedPatterns = [q.code.map((_, i) => i).join("-")];
+
+            if(allowedPatterns.includes(userPatternStr)) {
+                score++;
+                document.getElementById('q-score').innerText = score;
+                listItems.forEach(li => li.classList.add('correct'));
+                
+                setTimeout(nextQuestion, 1200);
+            } else {
+                listItems.forEach(li => li.classList.add('wrong'));
+                document.getElementById('hint-box').classList.add('hint-visible');
+                setTimeout(nextQuestion, 4000);
+            }
+        }
+
+        function addInteractionEvents(li) {
+            li.addEventListener('click', function() {
+                if(document.getElementById('submit-btn').disabled) return;
+                if(!selectedItem) {
+                    selectedItem = this; this.classList.add('selected');
+                } else if (selectedItem === this) {
+                    selectedItem = null; this.classList.remove('selected');
+                } else {
+                    swapNodes(selectedItem, this);
+                    selectedItem.classList.remove('selected'); selectedItem = null;
+                }
+            });
+            li.addEventListener('dragstart', function() { if(!document.getElementById('submit-btn').disabled) this.classList.add('dragging'); });
+            li.addEventListener('dragend', function() { this.classList.remove('dragging'); });
+        }
+        const listContainer = document.getElementById('sortable-list');
+        listContainer.addEventListener('dragover', e => {
+            e.preventDefault();
+            const draggingItem = document.querySelector('.dragging');
+            if(!draggingItem) return;
+            const siblings = [...listContainer.querySelectorAll('li:not(.dragging)')];
+            let nextSibling = siblings.find(sibling => e.clientY <= sibling.getBoundingClientRect().top + sibling.offsetHeight / 2);
+            listContainer.insertBefore(draggingItem, nextSibling);
+        });
+        function swapNodes(node1, node2) {
+            const temp = document.createElement("div");
+            node1.before(temp); node2.before(node1); temp.before(node2); temp.remove();
+        }
+
+        function nextQuestion() {
+            curIdx++;
+            if(curIdx < questions.length) loadQuestion();
+            else showSummary();
+        }
+        function showSummary() {
+            document.getElementById('screen-quiz').classList.remove('active');
+            document.getElementById('screen-result').classList.add('active');
+            document.getElementById('end-name').innerText = userName;
+            const percent = Math.round((score / 20) * 100);
+            document.getElementById('end-score').innerText = percent + '%';
+            
+            let msg = "";
+            if(percent >= 80) msg = "สุดยอดนักเขียนโปรแกรม!";
+            else if(percent >= 50) msg = "ภารกิจสำเร็จ! ทำได้ดีครับ";
+            else msg = "อย่าเพิ่งท้อ ลองฝึกฝนอีกครั้งนะ";
+            document.getElementById('end-msg').innerText = msg;
+        }
+        function resetGame() {
+            score = 0; curIdx = 0; userName = "";
+            document.getElementById('username').value = "";
+            document.getElementById('screen-result').classList.remove('active');
+            document.getElementById('screen-login').classList.add('active');
+        }
+    </script>
+</body>
+</html>
